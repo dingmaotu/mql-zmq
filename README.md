@@ -9,7 +9,7 @@ for the MQL4/5 language provided by MetaTrader4/5.
 
 Traders with programming abilities have always wanted a messaging solution
 like ZeroMQ, simple and powerful, far better than the PIPE trick as 
-suggested by the official articles. However, bindings for MQL were either outdated or not complete (mostly toy projects and only basic features are implemented). This binding is based on latest 4.2 version of the library, and provided all functionalities as specified in the API documentation.
+suggested by the official articles. However, bindings for MQL were either outdated or not complete (mostly toy projects and only basic features are implemented). This binding is based on latest 4.2 version of the library, and provides all functionalities as specified in the API documentation.
 
 This binding tries to remain compatible between MQL4/5. Users of both versions can use this binding, with a single set of headers. MQL4 and MQL5 are basically the same in that they are merged in recent versions. The difference is in the runtime environment (MetaTrader5 is 64bit by default, while MetaTrader4 is 32bit). The trading system is also different, but it is no concern of this binding.
 

@@ -31,6 +31,43 @@ MQL strings are Win32 UNICODE strings (basically 2-byte UTF-16). In this binding
 
 You can find a simple test script in `Scripts/Test`, and you can find examples of the official guide in Scripts/ZeroMQGuideExamples. I intend to translate all examples to this binding, but now only the hello world example is provided. I will gradually add those examples. Of course forking this binding if you are interested and welcome to send pull requests.
 
+Here is a sample from `HelloWorldServer.mq4`:
+
+```c++
+#include <Zmq/Zmq.mqh>
+//+------------------------------------------------------------------+
+//| Hello World server in MQL                                        |
+//| Binds REP socket to tcp://*:5555                                 |
+//| Expects "Hello" from client, replies with "World"                |
+//+------------------------------------------------------------------+
+void OnStart()
+  {
+   Context context;
+   Socket socket(context,ZMQ_REP);
+
+   socket.bind("tcp://*:5555");
+
+   while(true)
+     {
+      ZmqMsg request;
+
+      // Wait for next request from client
+
+      // MetaTrader note: this will block the script thread
+      // and if you try to terminate this script, MetaTrader
+      // will hang (and crash if you force closing it)
+      socket.recv(request);
+      Print("Receive Hello");
+
+      Sleep(1000);
+
+      ZmqMsg reply("World");
+      // Send reply back to client
+      socket.send(reply);
+     }
+  }
+```
+
 ## TODO
 
 1. Write more tests.

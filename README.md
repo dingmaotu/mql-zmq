@@ -91,5 +91,6 @@ void OnStart()
 2. Add more examples from the official ZMQ guide.
 
 ## Changes
-2017-05-26: Released 1.1: add the ability to share a ZMQ context globally in a terminal
-2016-12-27: Released 1.0.
+
+* 2017-05-26: Released 1.1: add the ability to share a ZMQ context globally in a terminal
+* 2016-12-27: Released 1.0.

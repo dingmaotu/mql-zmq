@@ -27,6 +27,23 @@ This binding contains three sets of files:
 
 MQL strings are Win32 UNICODE strings (basically 2-byte UTF-16). In this binding all strings are converted to utf-8 strings before sending to the dll layer. The ZmqMsg supports a constructor from MQL strings, the default is _NOT_ null-terminated.
 
+## Notes on context creation
+
+In the official guide:
+
+> You should create and use exactly one context in your process. Technically,
+> the context is the container for all sockets in a single process, and acts as
+> the transport for inproc sockets, which are the fastest way to connect threads
+> in one process. If at runtime a process has two contexts, these are like
+> separate ZeroMQ instances.
+
+In MetaTrader, every Script and Expert Advsior has its own thread, but they all
+share a process, that is the Terminal. So it is advised to use a single global
+context on all your MQL programs. The `shared` parameter of `Context` is used
+for sychronization of context creation and destruction. It is better named
+globally, and in a manner not easily recognized by humans, for example:
+"__3kewducdxhkd__"
+
 ## Usage
 
 You can find a simple test script in `Scripts/Test`, and you can find examples of the official guide in Scripts/ZeroMQGuideExamples. I intend to translate all examples to this binding, but now only the hello world example is provided. I will gradually add those examples. Of course forking this binding if you are interested and welcome to send pull requests.
@@ -42,7 +59,7 @@ Here is a sample from `HelloWorldServer.mq4`:
 //+------------------------------------------------------------------+
 void OnStart()
   {
-   Context context;
+   Context context("helloworld");
    Socket socket(context,ZMQ_REP);
 
    socket.bind("tcp://*:5555");
@@ -74,5 +91,5 @@ void OnStart()
 2. Add more examples from the official ZMQ guide.
 
 ## Changes
-
+2017-05-26: Released 1.1: add the ability to share a ZMQ context globally in a terminal
 2016-12-27: Released 1.0.

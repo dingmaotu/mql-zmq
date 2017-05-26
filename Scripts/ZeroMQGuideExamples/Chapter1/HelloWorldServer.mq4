@@ -15,12 +15,12 @@
 //+------------------------------------------------------------------+
 void OnStart()
   {
-   Context context;
+   Context context("helloworld");
    Socket socket(context,ZMQ_REP);
 
    socket.bind("tcp://*:5555");
 
-   while(true)
+   while(!IsStopped())
      {
       ZmqMsg request;
 

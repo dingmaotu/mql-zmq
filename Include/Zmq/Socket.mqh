@@ -3,8 +3,6 @@
 //|                                          Copyright 2016, Li Ding |
 //|                                            dingmaotu@hotmail.com |
 //+------------------------------------------------------------------+
-#property copyright "Copyright 2016, Li Ding"
-#property link      "dingmaotu@hotmail.com"
 #property strict
 
 #include "Common.mqh"

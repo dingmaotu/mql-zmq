@@ -6,6 +6,7 @@
 
 #include "Common.mqh"
 #include "SocketOptions.mqh"
+#include "GlobalHandle.mqh"
 
 //--- Context options
 #define ZMQ_IO_THREADS 1
@@ -30,19 +31,34 @@ int zmq_ctx_get(intptr_t context,int option);
 #import
 //+------------------------------------------------------------------+
 //| Wraps a 0MZ context                                              |
+//|                                                                  |
+//| Note on context creation:                                        |
+//| In the official guide:                                           |
+//|   You should create and use exactly one context in your process. |
+//|   Technically, the context is the container for all sockets in a |
+//|   single process, and acts as the transport for inproc sockets,  |
+//|   which are the fastest way to connect threads in one process.   |
+//|   If at runtime a process has two contexts, these are like       |
+//|   separate ZeroMQ instances.                                     |
+//| In metatrader Terminal, every Script and Expert Advsior has its  |
+//| own thread, but they all share a process, that is the Terminal.  |
+//| So it is advised to use a single global context on all your MQL  |
+//| programs. The `shared` parameter is used for sychronization of   |
+//| context creation and destruction. It is better named globally,   |
+//| and in a manner not easily recognized by humans, for example:    |
+//| "__3kewducdxhkd__"                                               |
 //+------------------------------------------------------------------+
-class Context
+class Context: public GlobalHandle<intptr_t>
   {
-private:
-   intptr_t          m_ref;
 protected:
    int               get(int option) {return zmq_ctx_get(m_ref,option);}
    bool              set(int option,int optval) {return 0==zmq_ctx_set(m_ref,option,optval);}
+
+   intptr_t          create() override {return zmq_ctx_new();}
+   void              destroy(intptr_t handle) override {if(0!=zmq_ctx_term(handle)) {Debug("failed to terminate context");}}
 public:
-                     Context() {m_ref=zmq_ctx_new();}
-                    ~Context() {if(0!=zmq_ctx_term(m_ref)){Debug("failed to terminate context");}}
-   // for better cooperation between objects
-   intptr_t          ref() const {return m_ref;}
+                     Context(string shared=NULL):GlobalHandle<intptr_t>(shared) {}
+
    bool              shutdown() {return 0==zmq_ctx_shutdown(m_ref);}
 
    int               getIoThreads() {return get(ZMQ_IO_THREADS);}

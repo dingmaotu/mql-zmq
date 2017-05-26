@@ -1,10 +1,10 @@
 //+------------------------------------------------------------------+
 //|                                                       Common.mqh |
+//| This file is part of mql4-lib project (Lang/Native.mqh):         |
+//| (github.com/dingmaotu/mql4-lib)                                  |
 //|                                          Copyright 2016, Li Ding |
 //|                                            dingmaotu@hotmail.com |
 //+------------------------------------------------------------------+
-#property copyright "Copyright 2016, Li Ding"
-#property link      "dingmaotu@hotmail.com"
 #property strict
 
 #include "Errno.mqh"

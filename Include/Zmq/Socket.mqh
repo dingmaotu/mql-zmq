@@ -187,7 +187,7 @@ bool Socket::recv(uchar &buf[],bool nowait=false)
   {
    int options=0;
    if(nowait) options|=ZMQ_DONTWAIT;
-   return 0==zmq_recv(m_ref,buf,ArraySize(buf),options);
+   return -1!=zmq_recv(m_ref,buf,ArraySize(buf),options);
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -197,7 +197,7 @@ bool Socket::send(const uchar &buf[],bool nowait=false,bool more=false)
    int options=0;
    if(nowait) options|=ZMQ_DONTWAIT;
    if(more) options|=ZMQ_SNDMORE;
-   return 0==zmq_send(m_ref,buf,ArraySize(buf),options);
+   return -1!=zmq_send(m_ref,buf,ArraySize(buf),options);
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -207,7 +207,7 @@ bool Socket::sendConst(const uchar &buf[],bool nowait=false,bool more=false)
    int options=0;
    if(nowait) options|=ZMQ_DONTWAIT;
    if(more) options|=ZMQ_SNDMORE;
-   return 0==zmq_send_const(m_ref,buf,ArraySize(buf),options);
+   return -1!=zmq_send_const(m_ref,buf,ArraySize(buf),options);
   }
 //+------------------------------------------------------------------+
 //| Send a zmq_msg_t through a socket                                |

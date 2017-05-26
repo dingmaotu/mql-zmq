@@ -42,7 +42,7 @@ share a process, that is the Terminal. So it is advised to use a single global
 context on all your MQL programs. The `shared` parameter of `Context` is used
 for sychronization of context creation and destruction. It is better named
 globally, and in a manner not easily recognized by humans, for example:
-"__3kewducdxhkd__"
+`__3kewducdxhkd__`
 
 ## Usage
 

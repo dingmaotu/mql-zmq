@@ -48,16 +48,18 @@ int zmq_ctx_get(intptr_t context,int option);
 //| and in a manner not easily recognized by humans, for example:    |
 //| "__3kewducdxhkd__"                                               |
 //+------------------------------------------------------------------+
-class Context: public GlobalHandle<intptr_t>
+class Context: public GlobalHandle<intptr_t,Context>
   {
 protected:
    int               get(int option) {return zmq_ctx_get(m_ref,option);}
    bool              set(int option,int optval) {return 0==zmq_ctx_set(m_ref,option,optval);}
 
-   intptr_t          create() override {return zmq_ctx_new();}
-   void              destroy(intptr_t handle) override {if(0!=zmq_ctx_term(handle)) {Debug("failed to terminate context");}}
 public:
-                     Context(string shared=NULL):GlobalHandle<intptr_t>(shared) {}
+
+   static intptr_t   create() {return zmq_ctx_new();}
+   static void       destroy(intptr_t handle) {if(0!=zmq_ctx_term(handle)) {Debug("failed to terminate context");}}
+
+                     Context(string shared=NULL):GlobalHandle<intptr_t,Context>(shared) {}
 
    bool              shutdown() {return 0==zmq_ctx_shutdown(m_ref);}
 

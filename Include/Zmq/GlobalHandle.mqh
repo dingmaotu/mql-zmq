@@ -55,14 +55,15 @@ public:
    bool              isValid() const {return m_name!=NULL;}
    string            getName() const {return m_name;}
 
-   void              enter() { while(!GlobalVariable::makeTemp(m_name))Sleep(100); }
+   void              enter() { while(!GlobalVariable::makeTemp(m_name) && !IsStopped())Sleep(100); }
    bool              tryEnter() { return GlobalVariable::makeTemp(m_name); }
    void              leave() { GlobalVariable::remove(m_name);}
   };
 //+------------------------------------------------------------------+
 //| A reference counted global pointer (or handle)                   |
+//| HandleManager should implement 2 static methods: create & destroy|
 //+------------------------------------------------------------------+
-template<typename T>
+template<typename T,typename HandleManager>
 class GlobalHandle
   {
 private:
@@ -76,7 +77,7 @@ public:
      {
       m_refName=m_cs.getName()+"_Ref";
       m_counterName=m_cs.getName()+"_Count";
-      if(!m_cs.isValid()) m_ref=create();
+      if(!m_cs.isValid()) m_ref=HandleManager::create();
       else
         {
          m_cs.enter();
@@ -87,7 +88,7 @@ public:
            }
          if(long(GlobalVariable::get(m_counterName))==0)
            {
-            m_ref=create();
+            m_ref=HandleManager::create();
             if(!GlobalVariable::exists(m_refName))
               {
                GlobalVariable::makeTemp(m_refName);
@@ -104,12 +105,12 @@ public:
      }
                     ~GlobalHandle()
      {
-      if(!m_cs.isValid()) {destroy(m_ref); return;}
+      if(!m_cs.isValid()) {HandleManager::destroy(m_ref); return;}
       m_cs.enter();
       GlobalVariable::set(m_counterName,GlobalVariable::get(m_counterName)-1);
       if(long(GlobalVariable::get(m_counterName))==0)
         {
-         destroy(m_ref);
+         HandleManager::destroy(m_ref);
          GlobalVariable::remove(m_refName);
          GlobalVariable::remove(m_counterName);
         }
@@ -117,9 +118,5 @@ public:
      }
 
    T                 ref() const {return m_ref;}
-
-protected:
-   virtual T         create()=NULL;
-   virtual void      destroy(T handle)=NULL;
   };
 //+------------------------------------------------------------------+

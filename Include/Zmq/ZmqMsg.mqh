@@ -49,11 +49,28 @@ protected:
    int               get(int property) {return zmq_msg_get(this,property);}
    bool              set(int property,int value) {return 0==zmq_msg_set(this,property,value);}
    intptr_t          data() {return zmq_msg_data(this);}
+   bool              setStringData(string data,bool nullterminated=false);
 public:
                      ZmqMsg() {zmq_msg_init(this);}
                      ZmqMsg(int size) {if(0!=zmq_msg_init_size(this,size)){Debug("Failed to init size msg: insufficient space");}}
-                     ZmqMsg(string data,bool nullterminated=false);
+                     ZmqMsg(string data,bool nullterminated=false) {setStringData(data,nullterminated);}
                     ~ZmqMsg() {if(0!=zmq_msg_close(this)){Debug("Failed to close msg");}}
+
+   bool              rebuild()
+     {
+      if(0!=zmq_msg_close(this)){Debug("Failed to close msg");return false;}
+      return 0==zmq_msg_init(this);
+     }
+   bool              rebuild(int size)
+     {
+      if(0!=zmq_msg_close(this)){Debug("Failed to close msg");return false;}
+      return 0==zmq_msg_init_size(this,size);
+     }
+   bool              rebuild(string data,bool nullterminated=false)
+     {
+      if(0!=zmq_msg_close(this)){Debug("Failed to close msg");return false;}
+      return setStringData(data,nullterminated);
+     }
 
    size_t            size() {return zmq_msg_size(this);}
 
@@ -71,13 +88,13 @@ public:
 //+------------------------------------------------------------------+
 //| Initialize a utf-8 string message                                |
 //+------------------------------------------------------------------+
-ZmqMsg::ZmqMsg(string data,bool nullterminated)
+bool ZmqMsg::setStringData(string data,bool nullterminated)
   {
    uchar array[];
    StringToUtf8(data,array,nullterminated);
-   int size=ArraySize(array);
-   zmq_msg_init_size(this,size);
-   setData(array);
+   bool res=(0==zmq_msg_init_size(this,ArraySize(array)));
+   if(res)setData(array);
+   return res;
   }
 //+------------------------------------------------------------------+
 //| Get message data as bytes array                                  |

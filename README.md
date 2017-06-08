@@ -92,5 +92,7 @@ void OnStart()
 
 ## Changes
 
+* 2017-06-08: Released 1.2: Fix GlobalHandle bug. Add rebuild method to ZmqMsg.
+  Complete all examples in ZMQ Guide Chanpter 1.
 * 2017-05-26: Released 1.1: add the ability to share a ZMQ context globally in a terminal
 * 2016-12-27: Released 1.0.

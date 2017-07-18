@@ -9,14 +9,6 @@
 #include "Context.mqh"
 #include "SocketOptions.mqh"
 #include "ZmqMsg.mqh"
-//--- fd is SOCKET on Win32, which is defined as UINT_PTR
-struct zmq_pollitem_t
-  {
-   intptr_t          socket;
-   uintptr_t         fd;
-   short             events;
-   short             revents;
-  };
 
 //--- Socket types
 #define ZMQ_PAIR 0
@@ -64,7 +56,17 @@ struct zmq_pollitem_t
 #define ZMQ_POLLPRI 8
 
 #define ZMQ_POLLITEMS_DFLT 16
+//--- fd is SOCKET on Win32, which is defined as UINT_PTR
+struct PollItem
+  {
+   intptr_t          socket;
+   uintptr_t         fd;
+   short             events;
+   short             revents;
 
+   bool              hasInput() const {return(revents&ZMQ_POLLIN)!=0;}
+   bool              hasOutput() const {return(revents&ZMQ_POLLOUT)!=0;}
+  };
 #import "libzmq.dll"
 //+------------------------------------------------------------------+
 //| Sockets                                                          |
@@ -87,7 +89,7 @@ int zmq_msg_recv(zmq_msg_t &msg,intptr_t s,int flags);
 //+------------------------------------------------------------------+
 //| I/O multiplexing                                                 |
 //+------------------------------------------------------------------+
-int zmq_poll(zmq_pollitem_t &items[],int nitems,long timeout);
+int zmq_poll(PollItem &items[],int nitems,long timeout);
 //+------------------------------------------------------------------+
 //| Message proxying                                                 |
 //+------------------------------------------------------------------+
@@ -123,8 +125,8 @@ public:
    bool              send(ZmqMsg &msg,bool nowait=false,bool more=false);
    bool              recv(ZmqMsg &msg,bool nowait=false);
 
-   void              register(zmq_pollitem_t &pollitem,bool read=false,bool write=false);
-   void              register(zmq_pollitem_t &pollitems[],int index,bool read=false,bool write=false);
+   void              register(PollItem &pollitem,bool read=false,bool write=false);
+   void              register(PollItem &pollitems[],int index,bool read=false,bool write=false);
 
    //--- monitor socket events
    bool              monitor(string addr,int events);
@@ -134,7 +136,10 @@ public:
    static bool       proxySteerable(Socket *frontend,Socket *backend,Socket *capture,Socket *control);
 
    //--- poll
-   static int        poll(zmq_pollitem_t &arr[],long timeout);
+   static int        poll(PollItem &arr[],long timeout);
+
+   //--- fill a poll item for this socket
+   void              fillPollItem(PollItem &item,short events);
   };
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -242,7 +247,7 @@ bool Socket::monitor(string addr,int events)
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void Socket::register(zmq_pollitem_t &pollitem,bool read=false,bool write=false)
+void Socket::register(PollItem &pollitem,bool read=false,bool write=false)
   {
    ZeroMemory(pollitem);
    pollitem.socket=m_ref;
@@ -252,7 +257,7 @@ void Socket::register(zmq_pollitem_t &pollitem,bool read=false,bool write=false)
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void Socket::register(zmq_pollitem_t &pollitems[],int index,bool read=false,bool write=false)
+void Socket::register(PollItem &pollitems[],int index,bool read=false,bool write=false)
   {
    ZeroMemory(pollitems[index]);
    pollitems[index].socket=m_ref;
@@ -281,10 +286,21 @@ bool Socket::proxySteerable(Socket *frontend,Socket *backend,Socket *capture,Soc
    return 0==zmq_proxy_steerable(frontend_ref, backend_ref, capture_ref, control_ref);
   }
 //+------------------------------------------------------------------+
-//|                                                                  |
+//| poll for events. timeout is milliseconds (-1 for indefinite wait |
+//| and 0 for immediate return)                                      |
 //+------------------------------------------------------------------+
-int Socket::poll(zmq_pollitem_t &arr[],long timeout)
+int Socket::poll(PollItem &arr[],long timeout)
   {
    return zmq_poll(arr,ArraySize(arr),timeout);
+  }
+//+------------------------------------------------------------------+
+//| fill a poll item for this socket                                 |
+//+------------------------------------------------------------------+
+void Socket::fillPollItem(PollItem &item,short events)
+  {
+   item.socket=m_ref;
+   item.fd=0;
+   item.events=events;
+   item.revents=0;
   }
 //+------------------------------------------------------------------+

@@ -35,12 +35,18 @@ This binding contains three sets of files:
    ZeroMQ and libsodium are provided. Copy the corresponding DLLs to the
    `Library` folder of your MetaTrader terminal. If you are using MT5 32bit, use
    the 32bit version from `Library/MT4`. The DLLs require that you have the
-   latest Visual C++ runtime (2015). *Note* that these DLLs are compiled from
-   official sources, without any modification. You can compile your own if you
-   don't trust these binaries. The `libsodium.dll` is copied from the official
-   binary release. If you want to support security mechanisms other than
-   `curve`, or you want to use transports like OpenPGM, you need to compile your
-   own DLL.
+   latest Visual C++ runtime (2015).
+
+   *Note* that if you are using **MT5 32bit**, you need to comment out the
+   `__X64__` macro definition at the top of the `Include/Zmq/Common.mqh`. I
+   assume MT5 is 64 bit, since their is no way to detect 32 bit by native
+   macros, and to define pointer related values a macro like this is required.
+   
+   *Note* that these DLLs are compiled from official sources, without any
+   modification. You can compile your own if you don't trust these binaries. The
+   `libsodium.dll` is copied from the official binary release. If you want to
+   support security mechanisms other than `curve`, or you want to use transports
+   like OpenPGM, you need to compile your own DLL.
 
 ## About string encoding
 

@@ -34,8 +34,8 @@ This binding contains three sets of files:
 3. Precompiled DLLs of both 64bit (`Library/MT5`) and 32bit (`Library/MT4`)
    ZeroMQ and libsodium are provided. Copy the corresponding DLLs to the
    `Library` folder of your MetaTrader terminal. If you are using MT5 32bit, use
-   the 32bit version from `Library/MT4`. The DLLs require that you have the
-   latest Visual C++ runtime (2015).
+   the 32bit version from `Library/MT4`. **The DLLs require that you have the
+   latest Visual C++ runtime (2015)**.
 
    *Note* that if you are using **MT5 32bit**, you need to comment out the
    `__X64__` macro definition at the top of the `Include/Zmq/Common.mqh`. I

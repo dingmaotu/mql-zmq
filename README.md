@@ -45,7 +45,7 @@ This binding contains three sets of files:
    latest Visual C++ runtime (2015)**.
 
    *Note* that if you are using **MT5 32bit**, you need to comment out the
-   `__X64__` macro definition at the top of the `Include/Zmq/Common.mqh`. I
+   `__X64__` macro definition at the top of the `Include/Mql/Lang/Native.mqh`. I
    assume MT5 is 64 bit, since their is no way to detect 32 bit by native
    macros, and to define pointer related values a macro like this is required.
    

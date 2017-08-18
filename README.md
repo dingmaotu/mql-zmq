@@ -21,11 +21,18 @@ runtime environment (MetaTrader5 is 64bit by default, while MetaTrader4 is
 32bit). The trading system is also different, but it is no concern of this
 binding.
 
-## Files 
+## Files and Installation
 
 This binding contains three sets of files:
 
-1. The binding itself is in the `Include/Zmq` directory.
+1. The binding itself is in the `Include/Zmq` directory. *Note* that there is a
+   `Mql` directory in `Include`, which is part of
+   the [mql4-lib](https://github.com/dingmaotu/mql4-lib). Previous `Common.mqh`
+   and `GlobalHandle.mqh` are actually from this library. At release 1.4, this
+   becomes a direct reference, with mql4-lib content copied here verbatim. It is
+   recommended you install the full mql4-lib, as it contains a lot other
+   features. But for those who want to use mql-zmq alone, it is OK to deploy
+   only the small subset included here.
 
 2. The testing scripts and zmq guide examples are in `Scripts` directory. The
    script files are mq4 by default, but you can change the extension to mq5 to
@@ -124,9 +131,11 @@ void OnStart()
 
 ## Changes
 
-* 2017-07-18: Released 1.3: Refactored poll support. Add Chapter 2 examples from
+* 2017-08-18: Released 1.4: Fix ZmqMsg setData bug; Change License to Apache
+  2.0; Inlcude mql4-lib dependencies directly.
+* 2017-07-18: Released 1.3: Refactored poll support; Add Chapter 2 examples from
   the official ZMQ guide.
-* 2017-06-08: Released 1.2: Fix GlobalHandle bug. Add rebuild method to ZmqMsg.
+* 2017-06-08: Released 1.2: Fix GlobalHandle bug; Add rebuild method to ZmqMsg;
   Complete all examples in ZMQ Guide Chanpter 1.
 * 2017-05-26: Released 1.1: add the ability to share a ZMQ context globally in a terminal
 * 2016-12-27: Released 1.0.

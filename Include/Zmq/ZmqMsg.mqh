@@ -117,7 +117,7 @@ void ZmqMsg::getData(uchar &data[])
   {
    size_t size=size();
    intptr_t src=data();
-   ArrayResize(data,(int)size);
+   if(ArraySize(data)<size) ArrayResize(data,(int)size);
    ArrayFromPointer(data,src);
   }
 //+------------------------------------------------------------------+

@@ -251,7 +251,7 @@ public:
    SOCKOPT(int,ReceiveTimeout,ZMQ_RCVTIMEO) // milliseconds
    SOCKOPT(int,SendBuffer,ZMQ_SNDBUF) // bytes
    SOCKOPT(int,SendHighWaterMark,ZMQ_SNDHWM) // messages
-   SOCKOPT(int,SendTimout,ZMQ_SNDTIMEO)
+   SOCKOPT(int,SendTimeout,ZMQ_SNDTIMEO)
 
    SOCKOPT_GET_BOOL(ReceiveMore,ZMQ_RCVMORE)
 

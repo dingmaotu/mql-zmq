@@ -45,28 +45,6 @@
 #define size_t int
 #endif
 
-//--- _WIN32_WINNT version constants
-#define _WIN32_WINNT_NT4                    0x0400 // Windows NT 4.0
-#define _WIN32_WINNT_WIN2K                  0x0500 // Windows 2000
-#define _WIN32_WINNT_WINXP                  0x0501 // Windows XP
-#define _WIN32_WINNT_WS03                   0x0502 // Windows Server 2003
-#define _WIN32_WINNT_WIN6                   0x0600 // Windows Vista
-#define _WIN32_WINNT_VISTA                  0x0600 // Windows Vista
-#define _WIN32_WINNT_WS08                   0x0600 // Windows Server 2008
-#define _WIN32_WINNT_LONGHORN               0x0600 // Windows Vista
-#define _WIN32_WINNT_WIN7                   0x0601 // Windows 7
-#define _WIN32_WINNT_WIN8                   0x0602 // Windows 8
-#define _WIN32_WINNT_WINBLUE                0x0603 // Windows 8.1
-#define _WIN32_WINNT_WINTHRESHOLD           0x0A00 // Windows 10
-#define _WIN32_WINNT_WIN10                  0x0A00 // Windows 10
-
-//--- define you own for your target platform
-#define WINVER 0x0A00
-#define _WIN32_WINNT 0x0A00
-
-#define FORMAT_MESSAGE_FROM_SYSTEM 0x00001000
-#define FORMAT_MESSAGE_IGNORE_INSERTS 0x00000200
-
 #import "kernel32.dll"
 void RtlMoveMemory(intptr_t dest,const uchar &array[],size_t length);
 void RtlMoveMemory(uchar &array[],intptr_t src,size_t length);
@@ -83,18 +61,7 @@ int MultiByteToWideChar(uint   codePage,
                         string &str,
                         int    length
                         );
-uint FormatMessageW(uint dwFlags,
-                    intptr_t lpSource,
-                    uint dwMessageId,
-                    uint dwLanguageId,
-                    ushort &buffer[],
-                    uint nSize,
-                    intptr_t Arguments
-                    );
 #import
-
-//--- This is a standard header of the official MetaTrader distribution
-#include <WinUser32.mqh>
 //+------------------------------------------------------------------+
 //| Copy the memory contents pointed by src to array                 |
 //| array parameter should be initialized to the desired size        |
@@ -186,15 +153,5 @@ void StringToUtf8(const string str,uchar &utf8[],bool ending=true)
    if(!ending && str=="") return;
    int count=ending ? -1 : StringLen(str);
    StringToCharArray(str,utf8,0,count,CP_UTF8);
-  }
-//+------------------------------------------------------------------+
-//| Get system defined error code message                            |
-//+------------------------------------------------------------------+
-string GetErrorMessage(int errorCode)
-  {
-   static ushort buffer[64*1024];
-   FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
-                  0,errorCode,0,buffer,ArraySize(buffer),0);
-   return ShortArrayToString(buffer);
   }
 //+------------------------------------------------------------------+

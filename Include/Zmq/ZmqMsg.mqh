@@ -136,7 +136,7 @@ void ZmqMsg::setData(const uchar &data[])
   {
    intptr_t dest=data();
    size_t size=size();
-   ArrayToPointer(data,dest,size);
+   ArrayToPointer(data,dest,(int)size);
   }
 //+------------------------------------------------------------------+
 //| Wraps zmq_msg_gets: get metadata associated with the msg         |

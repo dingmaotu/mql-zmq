@@ -184,10 +184,13 @@ public:
    SOCKOPT_GET_BYTES(OptionName,Macro,InitSize)
 
    //--- for curve key
+   //--- NOTE that the length of the key array must be 32.
+   //--- since some versions of mt4 and newer versions of mt5 will report error
+   //--- when the length of the array is specified, so the length specification is removed
 #define SOCKOPT_CURVE_KEY(KeyType,Macro) \
-   bool              getCurve##KeyType##Key(uchar &key[32]) {size_t len=32; return getOption(Macro,key,len);} \
+   bool              getCurve##KeyType##Key(uchar &key[]) {size_t len=32; return getOption(Macro,key,len);} \
    bool              getCurve##KeyType##Key(string &key) {return getStringOption(Macro,key,41);} \
-   bool              setCurve##KeyType##Key(const uchar &key[32]) {return setOption(Macro,key,32);} \
+   bool              setCurve##KeyType##Key(const uchar &key[]) {return setOption(Macro,key,32);} \
    bool              setCurve##KeyType##Key(string key) {return setStringOption(Macro,key);}
 
    SOCKOPT_GET(int,Type,ZMQ_TYPE)

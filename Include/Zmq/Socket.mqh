@@ -263,26 +263,6 @@ bool Socket::monitor(string addr,int events)
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void Socket::register(PollItem &pollitem,bool read=false,bool write=false)
-  {
-   ZeroMemory(pollitem);
-   pollitem.socket=m_ref;
-   if(read) pollitem.events|=ZMQ_POLLIN;
-   if(write) pollitem.events|=ZMQ_POLLOUT;
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void Socket::register(PollItem &pollitems[],int index,bool read=false,bool write=false)
-  {
-   ZeroMemory(pollitems[index]);
-   pollitems[index].socket=m_ref;
-   if(read) pollitems[index].events|=ZMQ_POLLIN;
-   if(write) pollitems[index].events|=ZMQ_POLLOUT;
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
 bool Socket::proxy(Socket *frontend,Socket *backend,Socket *capture)
   {
    intptr_t frontend_ref= CheckPointer(frontend)==POINTER_DYNAMIC?frontend.ref():0;

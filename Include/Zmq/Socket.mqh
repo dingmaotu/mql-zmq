@@ -141,9 +141,6 @@ public:
    bool              send(ZmqMsg &msg,bool nowait=false,bool more=false);
    bool              recv(ZmqMsg &msg,bool nowait=false);
 
-   void              register(PollItem &pollitem,bool read=false,bool write=false);
-   void              register(PollItem &pollitems[],int index,bool read=false,bool write=false);
-
    //--- monitor socket events
    bool              monitor(string addr,int events);
 
@@ -259,26 +256,6 @@ bool Socket::monitor(string addr,int events)
    bool res=(0==zmq_socket_monitor(m_ref,str,events));
    ArrayFree(str);
    return res;
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void Socket::register(PollItem &pollitem,bool read=false,bool write=false)
-  {
-   ZeroMemory(pollitem);
-   pollitem.socket=m_ref;
-   if(read) pollitem.events|=ZMQ_POLLIN;
-   if(write) pollitem.events|=ZMQ_POLLOUT;
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void Socket::register(PollItem &pollitems[],int index,bool read=false,bool write=false)
-  {
-   ZeroMemory(pollitems[index]);
-   pollitems[index].socket=m_ref;
-   if(read) pollitems[index].events|=ZMQ_POLLIN;
-   if(write) pollitems[index].events|=ZMQ_POLLOUT;
   }
 //+------------------------------------------------------------------+
 //|                                                                  |

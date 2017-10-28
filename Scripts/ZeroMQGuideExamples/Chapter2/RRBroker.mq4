@@ -42,8 +42,8 @@ void OnStart()
          do
            {
             frontend.recv(message);
-            more=message.more();
-            backend.send(message,false,more);
+            if(message.more()) backend.sendMore(message);
+            else backend.send(message);
            }
          while(more);
         }
@@ -53,8 +53,8 @@ void OnStart()
          do
            {
             backend.recv(message);
-            more=message.more();
-            frontend.send(message,false,more);
+            if(message.more()) frontend.sendMore(message);
+            else frontend.send(message);
            }
          while(more);
         }

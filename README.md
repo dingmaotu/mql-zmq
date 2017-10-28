@@ -128,14 +128,19 @@ void OnStart()
 
 1. Write more tests.
 2. Add more examples from the official ZMQ guide.
+3. More documentation
+4. High level API for common patterns
 
 ## Changes
 
+* 2017-10-28: Released 1.5: Important: API change for `Socket.send`; Remove
+  PollItem duplicate API (#11); Fix compiler warning (#10) and compile failure
+  (#12); Add RTReq example from ZMQ Guide Chapter 3.
 * 2017-08-18: Released 1.4: Fix ZmqMsg setData bug; Change License to Apache
   2.0; Inlcude mql4-lib dependencies directly.
 * 2017-07-18: Released 1.3: Refactored poll support; Add Chapter 2 examples from
   the official ZMQ guide.
 * 2017-06-08: Released 1.2: Fix GlobalHandle bug; Add rebuild method to ZmqMsg;
-  Complete all examples in ZMQ Guide Chanpter 1.
+  Complete all examples in ZMQ Guide Chapter 1.
 * 2017-05-26: Released 1.1: add the ability to share a ZMQ context globally in a terminal
 * 2016-12-27: Released 1.0.

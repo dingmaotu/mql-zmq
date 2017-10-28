@@ -133,13 +133,32 @@ public:
    bool              connect(string addr);
    bool              disconnect(string addr);
 
-   //--- send and receive packets
-   bool              recv(uchar &buf[],bool nowait=false);
-   bool              send(const uchar &buf[],bool nowait=false,bool more=false);
-   bool              sendConst(const uchar &buf[],bool nowait=false,bool more=false);
+   //--- send raw bytes
+   bool              send(const uchar &buf[],bool nowait=false) {return -1!=zmq_send(m_ref,buf,ArraySize(buf),nowait?ZMQ_DONTWAIT:0);}
+   bool              sendConst(const uchar &buf[],bool nowait=false) {return -1!=zmq_send_const(m_ref,buf,ArraySize(buf),nowait?ZMQ_DONTWAIT:0);}
 
-   bool              send(ZmqMsg &msg,bool nowait=false,bool more=false);
-   bool              recv(ZmqMsg &msg,bool nowait=false);
+   //--- send ZmqMsg
+   bool              send(ZmqMsg &msg,bool nowait=false) {return -1!=zmq_msg_send(msg,m_ref,nowait?ZMQ_DONTWAIT:0);}
+   //--- send string
+   bool              send(string msg,bool nowait=false) {ZmqMsg m(msg); return send(m,nowait);}
+   //--- send empty
+   bool              send(bool nowait=false) {ZmqMsg m; return send(m,nowait);}
+
+   //--- same as above 5 but for multipart messages
+   bool              sendMore(const uchar &buf[],bool nowait=false);
+   bool              sendConstMore(const uchar &buf[],bool nowait=false);
+   bool              sendMore(ZmqMsg &msg,bool nowait=false)
+     {
+      int flags=ZMQ_SNDMORE;
+      if(nowait) flags|=ZMQ_DONTWAIT;
+      return -1!=zmq_msg_send(msg,m_ref,flags);
+     }
+   bool              sendMore(string msg,bool nowait=false) {ZmqMsg m(msg); return sendMore(m,nowait);}
+   bool              sendMore(bool nowait=false) {ZmqMsg m; return sendMore(m,nowait);}
+
+   //--- receive packets
+   bool              recv(uchar &buf[],bool nowait=false) {return -1!=zmq_recv(m_ref,buf,ArraySize(buf),nowait?ZMQ_DONTWAIT:0);}
+   bool              recv(ZmqMsg &msg,bool nowait=false) {return -1!=zmq_msg_recv(msg,m_ref,nowait?ZMQ_DONTWAIT:0);}
 
    //--- monitor socket events
    bool              monitor(string addr,int events);
@@ -197,54 +216,6 @@ bool Socket::disconnect(string addr)
    bool res=(0==zmq_disconnect(m_ref,arr));
    ArrayFree(arr);
    return res;
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-bool Socket::recv(uchar &buf[],bool nowait=false)
-  {
-   int options=0;
-   if(nowait) options|=ZMQ_DONTWAIT;
-   return -1!=zmq_recv(m_ref,buf,ArraySize(buf),options);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-bool Socket::send(const uchar &buf[],bool nowait=false,bool more=false)
-  {
-   int options=0;
-   if(nowait) options|=ZMQ_DONTWAIT;
-   if(more) options|=ZMQ_SNDMORE;
-   return -1!=zmq_send(m_ref,buf,ArraySize(buf),options);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-bool Socket::sendConst(const uchar &buf[],bool nowait=false,bool more=false)
-  {
-   int options=0;
-   if(nowait) options|=ZMQ_DONTWAIT;
-   if(more) options|=ZMQ_SNDMORE;
-   return -1!=zmq_send_const(m_ref,buf,ArraySize(buf),options);
-  }
-//+------------------------------------------------------------------+
-//| Send a zmq_msg_t through a socket                                |
-//+------------------------------------------------------------------+
-bool Socket::send(ZmqMsg &msg,bool nowait=false,bool more=false)
-  {
-   int flags=0;
-   if(nowait) flags|=ZMQ_DONTWAIT;
-   if(more) flags|=ZMQ_SNDMORE;
-   return -1!=zmq_msg_send(msg,m_ref,flags);
-  }
-//+------------------------------------------------------------------+
-//| Receive a zmq_msg_t from a socket                                |
-//+------------------------------------------------------------------+
-bool Socket::recv(ZmqMsg &msg,bool nowait=false)
-  {
-   int flags=0;
-   if(nowait) flags|=ZMQ_DONTWAIT;
-   return -1!=zmq_msg_recv(msg,m_ref,flags);
   }
 //+------------------------------------------------------------------+
 //|                                                                  |

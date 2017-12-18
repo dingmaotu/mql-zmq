@@ -39,10 +39,10 @@ This binding contains three sets of files:
    use them in MetaTrader5.
 
 3. Precompiled DLLs of both 64bit (`Library/MT5`) and 32bit (`Library/MT4`)
-   ZeroMQ and libsodium are provided. Copy the corresponding DLLs to the
-   `Library` folder of your MetaTrader terminal. If you are using MT5 32bit, use
-   the 32bit version from `Library/MT4`. **The DLLs require that you have the
-   latest Visual C++ runtime (2015)**.
+   ZeroMQ (4.2.0) and libsodium (1.0.11) are provided. Copy the corresponding
+   DLLs to the `Library` folder of your MetaTrader terminal. If you are using
+   MT5 32bit, use the 32bit version from `Library/MT4`. **The DLLs require that
+   you have the latest Visual C++ runtime (2015)**.
 
    *Note* that if you are using **MT5 32bit**, you need to comment out the
    `__X64__` macro definition at the top of the `Include/Mql/Lang/Native.mqh`. I
@@ -54,6 +54,19 @@ This binding contains three sets of files:
    `libsodium.dll` is copied from the official binary release. If you want to
    support security mechanisms other than `curve`, or you want to use transports
    like OpenPGM, you need to compile your own DLL.
+   
+   *Note* for WINE users, if the default binaries do not work for you, you can
+   try the binaries in the `Library/VC2010` directory. The new binaries are a
+   little newer (libzmq 4.2.2 and libsodium 1.0.36). They are compiled with
+   Visual C++ 2010 Express SP1 (using the Windows SDK 7.1), and supposed to be
+   more compatible to WINE than the VS2015 version. They depend on VC2010
+   runtime (msvcr100.dll and msvcp100.dll). I have actually tested the old and
+   the new DLLs on WINE 2.0.3 (Debian Jessie PlayOnLinux 32bit with MetaTrader4
+   build 1090) and they both work. So it is *not* guarenteed but it is nice to
+   have an alternative. The new libzmq.dll only runs on vista or newer windows
+   because I turned on the `using poll` option. This improves performance a
+   little bit. Since MetaTrader4 officially no longer supports Windows XP, I
+   assume this would not be a problem.
 
 ## About string encoding
 

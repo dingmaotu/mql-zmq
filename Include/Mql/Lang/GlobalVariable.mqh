@@ -91,7 +91,7 @@ long AtomicVar::increment(long by)
       value=(long)get();
       success=setOn(value+by,value);
      }
-   while(!success);
+   while(!success && !IsStopped());
    return (value+by);
   }
 //+------------------------------------------------------------------+

@@ -19,14 +19,7 @@
 //| and limitations under the License.                               |
 //+------------------------------------------------------------------+
 #property strict
-
-#import "stdlib.ex4"
-string ErrorDescription(int error_code);
-int    RGB(int red_value,int green_value,int blue_value);
-bool   CompareDoubles(double number1,double number2);
-string DoubleToStrMorePrecision(double number,int precision);
-string IntegerToHexString(int integer_number);
-#import
+#include "Error.mqh"
 //+------------------------------------------------------------------+
 //| Mql language specific methods                                    |
 //+------------------------------------------------------------------+
@@ -34,13 +27,29 @@ class Mql
   {
 public:
    static int        getLastError() {return GetLastError();}
-   static string     getErrorMessage(int errorCode) {return ErrorDescription(errorCode);}
+   static string     getErrorMessage(int errorCode) {return GetErrorDescription(errorCode);}
 
-   static string     doubleToString(double value,int precision) {return DoubleToStrMorePrecision(value,precision);}
-   static string     integerToHexString(int value) {return IntegerToHexString(value);}
-   static int        rgb(int red,int green,int blue) {return RGB(red,green,blue);}
+   //--- Prefer global DoubleToString function
+   static string     doubleToString(double value,int precision) {return DoubleToString(value,precision);}
+   //--- Adapted from stdlib.mq4 by using `StringSetCharacter` instead of `StringSetChar`
+   static string     integerToHexString(int value)
+     {
+      static const string digits="0123456789ABCDEF";
+      string hex="00000000";
+      int    digit,shift=28;
+      for(int i=0; i<8; i++)
+        {
+         digit=(value>>shift)&0x0F;
+         StringSetCharacter(hex,i,digits[digit]);
+         shift-=4;
+        }
+      return(hex);
+     }
+   //--- Prefer Canvas/Canvas.mqh XRGB
+   static int        rgb(int r,int g,int b) {return int(0xFF000000|(uchar(r)<<16)|(uchar(g)<<8)|uchar(b));}
 
-   static bool       isEqual(double a,double b) {return CompareDoubles(a,b);}
+   //--- Prefer Lang/Number.mqh Double::IsEqual
+   static bool       isEqual(double a,double b) {return NormalizeDouble(a-b,8)==0;}
 
    static bool       isStopped() {return IsStopped();}
 
@@ -67,7 +76,19 @@ public:
    static string     getProgramName() {return MQLInfoString(MQL_PROGRAM_NAME);}
    static string     getProgramPath() {return MQLInfoString(MQL_PROGRAM_PATH);}
   };
-
+//+------------------------------------------------------------------+
+//| Object getter/setter generator                                   |
+//| ObjectAttr generates:                                            |
+//| 1. private member m_property                                     |
+//| 2. public method setProperty                                     |
+//| 3. public method getProperty                                     |
+//| ObjectAttrBool is specific to boolean type properties:           |
+//| 1. private member m_isProperty                                   |
+//| 2. public method setProperty                                     |
+//| 3. public method isProperty                                      |
+//| Use *Read or *Write versions for read only or write only         |
+//| properties                                                       |
+//+------------------------------------------------------------------+
 #define ObjectAttr(Type, Private, Public) \
 public:\
    Type              get##Public() const {return m_##Private;}\
@@ -87,13 +108,35 @@ public:\
 private:\
    Type              m_##Private\
 
+#define ObjectAttrBool(Public) \
+public:\
+   bool              is##Public() const {return m_is##Public;}\
+   void              set##Public(bool value) {m_is##Public=value;}\
+private:\
+   bool              m_is##Public\
+
+#define ObjectAttrBoolRead(Public) \
+public:\
+   bool              is##Public() const {return m_is##Public;}\
+private:\
+   bool              m_is##Public\
+
+#define ObjectAttrBoolWrite(Public) \
+public:\
+   void              set##Public(bool value) {m_is##Public=value;}\
+private:\
+   bool              m_##Private\
+//+------------------------------------------------------------------+
+//| Print debug messages: only generate code for debugging runs      |
+//+------------------------------------------------------------------+
 #ifdef _DEBUG
-#define Debug(msg) Print(">>> DEBUG: In ",__FUNCTION__,"(",__FILE__,":",__LINE__,") [", msg, "]")
+#define Debug(msg) PrintFormat(">>> DEBUG[%s,%d,%s]: %s",__FILE__,__LINE__,__FUNCTION__,msg);
 #else
 #define Debug(msg)
 #endif
-
-//--- Execute some code in the global scope
+//+------------------------------------------------------------------+
+//| Execute some code in the global scope                            |
+//+------------------------------------------------------------------+
 #define BEGIN_EXECUTE(Name) class __Execute##Name\
   {\
    public:__Execute##Name()\

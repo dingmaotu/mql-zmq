@@ -48,6 +48,10 @@
 #import "kernel32.dll"
 void RtlMoveMemory(intptr_t dest,const uchar &array[],size_t length);
 void RtlMoveMemory(uchar &array[],intptr_t src,size_t length);
+void RtlMoveMemory(intptr_t dest,const MqlRates &array[],size_t length);
+void RtlMoveMemory(MqlRates &array[],intptr_t src,size_t length);
+void RtlMoveMemory(intptr_t dest,const MqlTick &value,size_t length);
+void RtlMoveMemory(MqlTick &value,intptr_t src,size_t length);
 void RtlMoveMemory(intptr_t &dest,intptr_t src,size_t length);
 int lstrlen(intptr_t psz);
 int lstrlenW(intptr_t psz);
@@ -65,19 +69,41 @@ int MultiByteToWideChar(uint   codePage,
 //+------------------------------------------------------------------+
 //| Copy the memory contents pointed by src to array                 |
 //| array parameter should be initialized to the desired size        |
+//| Need to import RtlMoveMemory with appropriate parameter type T   |
 //+------------------------------------------------------------------+
-void ArrayFromPointer(uchar &array[],intptr_t src,int count=WHOLE_ARRAY)
+template<typename T>
+void ArrayFromPointer(T &array[],intptr_t src,int count=WHOLE_ARRAY)
   {
    int size=(count==WHOLE_ARRAY)?ArraySize(array):count;
-   RtlMoveMemory(array,src,(size_t)size);
+   RtlMoveMemory(array,src,(size_t)(size*sizeof(T)));
   }
 //+------------------------------------------------------------------+
 //| Copy array to the memory pointed by dest                         |
+//| Need to import RtlMoveMemory with appropriate parameter type T   |
 //+------------------------------------------------------------------+
-void ArrayToPointer(const uchar &array[],intptr_t dest,int count=WHOLE_ARRAY)
+template<typename T>
+void ArrayToPointer(const T &array[],intptr_t dest,int count=WHOLE_ARRAY)
   {
    int size=(count==WHOLE_ARRAY)?ArraySize(array):count;
-   RtlMoveMemory(dest,array,(size_t)size);
+   RtlMoveMemory(dest,array,(size_t)(size*sizeof(T)));
+  }
+//+------------------------------------------------------------------+
+//| Copy the memory contents pointed by src to value type T          |
+//| Need to import RtlMoveMemory with appropriate parameter type T   |
+//+------------------------------------------------------------------+
+template<typename T>
+void ValueFromPointer(T &value,intptr_t src)
+  {
+   RtlMoveMemory(value,src,(size_t)sizeof(T));
+  }
+//+------------------------------------------------------------------+
+//| Copy value to the memory pointed by dest                         |
+//| Need to import RtlMoveMemory with appropriate parameter type T   |
+//+------------------------------------------------------------------+
+template<typename T>
+void ValueToPointer(const T &value,intptr_t dest)
+  {
+   RtlMoveMemory(dest,value,(size_t)sizeof(T));
   }
 //+------------------------------------------------------------------+
 //| For void** type, dereference a level to void*                    |

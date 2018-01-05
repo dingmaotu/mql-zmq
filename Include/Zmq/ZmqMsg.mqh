@@ -46,10 +46,10 @@ int zmq_msg_close(zmq_msg_t &msg);
 int zmq_msg_move(zmq_msg_t &dest,zmq_msg_t &src);
 int zmq_msg_copy(zmq_msg_t &dest,zmq_msg_t &src);
 // char *
-intptr_t zmq_msg_data(zmq_msg_t &msg);
-int zmq_msg_size(zmq_msg_t &msg);
-int zmq_msg_more(zmq_msg_t &msg);
-int zmq_msg_get(zmq_msg_t &msg,int property);
+intptr_t zmq_msg_data(zmq_msg_t const &msg);
+int zmq_msg_size(zmq_msg_t const &msg);
+int zmq_msg_more(zmq_msg_t const &msg);
+int zmq_msg_get(zmq_msg_t const &msg,int property);
 int zmq_msg_set(zmq_msg_t &msg,int property,int optval);
 // const char *
 intptr_t zmq_msg_gets(zmq_msg_t &msg,const char &property[]);
@@ -62,7 +62,7 @@ struct ZmqMsg: public zmq_msg_t
 protected:
    int               get(int property) {return zmq_msg_get(this,property);}
    bool              set(int property,int value) {return 0==zmq_msg_set(this,property,value);}
-   intptr_t          data() {return zmq_msg_data(this);}
+   intptr_t          data() const {return zmq_msg_data(this);}
    bool              setStringData(string data,bool nullterminated=false);
 public:
                      ZmqMsg() {zmq_msg_init(this);}

@@ -143,16 +143,10 @@ string StringFromUtf8Pointer(intptr_t psz,int len)
    if(len < 0) return NULL;
    string res;
    int required=MultiByteToWideChar(CP_UTF8,0,psz,len,res,0);
-   StringInit(res,required);
-   int resLength = MultiByteToWideChar(CP_UTF8,0,psz,len,res,required);
-   if(resLength != required)
-     {
-      return NULL;
-     }
-   else
-     {
-      return res;
-     }
+// need to include the NULL terminating character
+   StringInit(res,required+1);
+   int rlen=MultiByteToWideChar(CP_UTF8,0,psz,len,res,required);
+   return rlen != required ? NULL : res;
   }
 //+------------------------------------------------------------------+
 //| for null-terminated string                                       |

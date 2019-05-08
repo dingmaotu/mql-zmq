@@ -79,6 +79,12 @@ struct PollItem
    uintptr_t         fd;
    short             events;
    short             revents;
+#ifdef __X64__
+   //--- note here that if the program runs on 64bit runtime, we need to pad the
+   //--- struct to align to 8 bytes 
+   //--- thanks https://github.com/feng-ye for the solution to https://github.com/dingmaotu/mql-zmq/issues/14
+   int               __unused;
+#endif
 
    bool              hasInput() const {return(revents&ZMQ_POLLIN)!=0;}
    bool              hasOutput() const {return(revents&ZMQ_POLLOUT)!=0;}

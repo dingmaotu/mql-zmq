@@ -2,6 +2,15 @@
 
 ZMQ binding for the MQL language (both 32bit MT4 and 64bit MT5)
 
+* [1. Introduction](#introduction)
+* [2. Files and Installation](#files-and-installation)
+* [3. About string encoding](#about-string-encoding)
+* [4. Notes on context creation](#notes-on-context-creation)
+* [5. Usage](#usage)
+* [6. TODO](#todo)
+* [7. Changes](#changes)
+* [8. Donation](#donation)
+
 ## Introduction
 
 This is a complete binding of the [ZeroMQ](http://zeromq.org/) library
@@ -157,3 +166,11 @@ void OnStart()
   Complete all examples in ZMQ Guide Chapter 1.
 * 2017-05-26: Released 1.1: add the ability to share a ZMQ context globally in a terminal
 * 2016-12-27: Released 1.0.
+
+## Donation
+
+This binding is created in spare time and the author answers questions, solves issues, and intends to maintain the code so that bugs are fixed and the binding is kept up to date with official releases. If you think that the binding is useful to you or your organization, please consider donate to the author for his effort to maintain this binding. Thanks! 
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RL6U2HFVTCUUN)
+
+![alipay](ALIPAY.JPG)

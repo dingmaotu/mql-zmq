@@ -88,9 +88,9 @@ public:
 
    size_t            size() {return zmq_msg_size(this);}
 
-   void              getData(uchar &data[]);
+   void              getData(uchar &bytes[]);
    string            getData();
-   void              setData(const uchar &data[]);
+   void              setData(const uchar &bytes[]);
 
    bool              more() {return 1==zmq_msg_more(this);}
 
@@ -113,12 +113,12 @@ bool ZmqMsg::setStringData(string data,bool nullterminated)
 //+------------------------------------------------------------------+
 //| Get message data as bytes array                                  |
 //+------------------------------------------------------------------+
-void ZmqMsg::getData(uchar &data[])
+void ZmqMsg::getData(uchar &bytes[])
   {
    size_t size=size();
    intptr_t src=data();
-   if(ArraySize(data)<size) ArrayResize(data,(int)size);
-   ArrayFromPointer(data,src);
+   if(ArraySize(bytes)<size) ArrayResize(bytes,(int)size);
+   ArrayFromPointer(bytes,src);
   }
 //+------------------------------------------------------------------+
 //| Get message data as utf-8 string                                 |
@@ -132,11 +132,11 @@ string ZmqMsg::getData()
 //+------------------------------------------------------------------+
 //| copy data to message internal storage                            |
 //+------------------------------------------------------------------+
-void ZmqMsg::setData(const uchar &data[])
+void ZmqMsg::setData(const uchar &bytes[])
   {
    intptr_t dest=data();
    size_t size=size();
-   ArrayToPointer(data,dest,(int)size);
+   ArrayToPointer(bytes,dest,(int)size);
   }
 //+------------------------------------------------------------------+
 //| Wraps zmq_msg_gets: get metadata associated with the msg         |

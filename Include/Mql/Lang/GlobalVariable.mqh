@@ -25,21 +25,57 @@
 class GlobalVariable
   {
 public:
-   static int        total() {return GlobalVariablesTotal();}
-   static string     name(int index) {return GlobalVariableName(index);}
-   static void       flush() {GlobalVariablesFlush();}
+   static int        total()
+     {
+      return GlobalVariablesTotal();
+     }
+   static string     name(int index)
+     {
+      return GlobalVariableName(index);
+     }
+   static void       flush()
+     {
+      GlobalVariablesFlush();
+     }
 
-   static bool       exists(string name) {return GlobalVariableCheck(name);}
-   static datetime   lastAccess(string name) {return GlobalVariableTime(name);}
+   static bool       exists(string name)
+     {
+      return GlobalVariableCheck(name);
+     }
+   static datetime   lastAccess(string name)
+     {
+      return GlobalVariableTime(name);
+     }
 
-   static bool       makeTemp(string name) {return GlobalVariableTemp(name);}
-   static double     get(string name) {return GlobalVariableGet(name);}
-   static bool       get(string name,double &value) {return GlobalVariableGet(name,value);}
-   static datetime   set(string name,double value) {return GlobalVariableSet(name,value);}
-   static bool       setOn(string name,double value,double check) {return GlobalVariableSetOnCondition(name,value,check);}
+   static bool       makeTemp(string name)
+     {
+      return GlobalVariableTemp(name);
+     }
+   static double     get(string name)
+     {
+      return GlobalVariableGet(name);
+     }
+   static bool       get(string name,double &value)
+     {
+      return (bool)GlobalVariableGet(name,value);
+     }
+   static bool       set(string name,double value)
+     {
+      return (bool)GlobalVariableSet(name,value);
+     }
+   static bool       setOn(string name,double value,double check)
+     {
+      return GlobalVariableSetOnCondition(name,value,check);
+     }
 
-   static bool       remove(string name) {return GlobalVariableDel(name);}
-   static bool       removeAll(string prefix=NULL,datetime before=0) {return GlobalVariablesDeleteAll(prefix,before);}
+   static bool       remove(string name)
+     {
+      return (bool)GlobalVariableDel(name);
+     }
+   static bool       removeAll(string prefix=NULL,datetime before=0)
+     {
+      return (bool)GlobalVariablesDeleteAll(prefix,before);
+     }
   };
 //+------------------------------------------------------------------+
 //| TempVar is a variable whose life time is the same as the program |
@@ -57,14 +93,38 @@ public:
          GlobalVariable::makeTemp(name);
         }
      }
-                    ~TempVar() {if(m_owned && isValid()) {GlobalVariable::remove(m_name);}}
+                    ~TempVar()
+     {
+      if(m_owned && isValid())
+        {
+         GlobalVariable::remove(m_name);
+        }
+     }
 
-   bool              isValid() const {return GlobalVariable::exists(m_name);}
-   string            getName() const {return m_name;}
-   bool              set(double value) {return GlobalVariable::set(m_name,value);}
-   double            get() const {return GlobalVariable::get(m_name);}
-   bool              setOn(double value,double check) {return GlobalVariable::setOn(m_name,value,check);}
-   datetime          lastAccess() const {return GlobalVariable::lastAccess(m_name);}
+   bool              isValid() const
+     {
+      return GlobalVariable::exists(m_name);
+     }
+   string            getName() const
+     {
+      return m_name;
+     }
+   bool              set(double value)
+     {
+      return GlobalVariable::set(m_name,value);
+     }
+   double            get() const
+     {
+      return GlobalVariable::get(m_name);
+     }
+   bool              setOn(double value,double check)
+     {
+      return GlobalVariable::setOn(m_name,value,check);
+     }
+   datetime          lastAccess() const
+     {
+      return GlobalVariable::lastAccess(m_name);
+     }
   };
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -77,7 +137,10 @@ public:
       set(initial);
      }
    long              increment(long by=1);
-   long              decrement(long by=1) {return increment(-by);}
+   long              decrement(long by=1)
+     {
+      return increment(-by);
+     }
   };
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -103,7 +166,10 @@ private:
    TempVar           m_var;
 public:
                      Semaphore(string name,long initial=0);
-   bool              isValid() const {return m_var.isValid();}
+   bool              isValid() const
+     {
+      return m_var.isValid();
+     }
    bool              acquire();
    void              release();
   };
@@ -127,7 +193,8 @@ bool Semaphore::acquire(void)
    do
      {
       long value=(long)m_var.get();
-      if(value == 0) return false;
+      if(value == 0)
+         return false;
       success=m_var.setOn(value-1,value);
      }
    while(!success && !IsStopped());
@@ -168,22 +235,46 @@ class CriticalSection
 private:
    const string      m_name;
 public:
-                     CriticalSection(string name):m_name(name){}
+                     CriticalSection(string name):m_name(name) {}
 
-   bool              isValid() const {return m_name!=NULL;}
-   string            getName() const {return m_name;}
+   bool              isValid() const
+     {
+      return m_name!=NULL;
+     }
+   string            getName() const
+     {
+      return m_name;
+     }
 
-   void              enter() { while(!GlobalVariable::makeTemp(m_name) && !IsStopped())Sleep(100); }
-   bool              tryEnter() { return GlobalVariable::makeTemp(m_name); }
-   void              leave() { GlobalVariable::remove(m_name);}
+   void              enter()
+     {
+      while(!GlobalVariable::makeTemp(m_name) && !IsStopped())
+         Sleep(100);
+     }
+   bool              tryEnter()
+     {
+      return GlobalVariable::makeTemp(m_name);
+     }
+   void              leave()
+     {
+      GlobalVariable::remove(m_name);
+     }
+  };
+//+------------------------------------------------------------------+
+//| HandleManager should implement 2 methods: create & destroy       |
+//+------------------------------------------------------------------+
+template<typename T>
+interface HandleManager
+  {
+   T         create();
+   void      destroy(T);
   };
 //+------------------------------------------------------------------+
 //| A reference counted global pointer (or handle)                   |
 //| Generic type parameter T can be long or int depending the handle |
 //| length (64bit or 32bit)                                          |
-//| HandleManager should implement 2 static methods: create & destroy|
 //+------------------------------------------------------------------+
-template<typename T,typename HandleManager>
+template<typename T,typename HM>
 class GlobalHandle
   {
 private:
@@ -192,12 +283,15 @@ private:
    string            m_counterName;
 protected:
    T                 m_ref;
+   HandleManager<T>  *m_hm;
 public:
                      GlobalHandle(string sharedKey=NULL):m_cs(sharedKey)
      {
       m_refName=m_cs.getName()+"_Ref";
       m_counterName=m_cs.getName()+"_Count";
-      if(!m_cs.isValid()) m_ref=HandleManager::create();
+      m_hm = new HM;
+      if(!m_cs.isValid())
+         m_ref = m_hm.create();
       else
         {
          m_cs.enter();
@@ -208,7 +302,7 @@ public:
            }
          if(long(GlobalVariable::get(m_counterName))==0)
            {
-            m_ref=HandleManager::create();
+            m_ref = m_hm.create();
             if(!GlobalVariable::exists(m_refName))
               {
                GlobalVariable::makeTemp(m_refName);
@@ -225,18 +319,28 @@ public:
      }
                     ~GlobalHandle()
      {
-      if(!m_cs.isValid()) {HandleManager::destroy(m_ref); return;}
-      m_cs.enter();
-      GlobalVariable::set(m_counterName,GlobalVariable::get(m_counterName)-1);
-      if(long(GlobalVariable::get(m_counterName))==0)
+      if(!m_cs.isValid())
         {
-         HandleManager::destroy(m_ref);
-         GlobalVariable::remove(m_refName);
-         GlobalVariable::remove(m_counterName);
+         m_hm.destroy(m_ref);
         }
-      m_cs.leave();
+      else
+        {
+         m_cs.enter();
+         GlobalVariable::set(m_counterName,GlobalVariable::get(m_counterName)-1);
+         if(long(GlobalVariable::get(m_counterName))==0)
+           {
+            m_hm.destroy(m_ref);
+            GlobalVariable::remove(m_refName);
+            GlobalVariable::remove(m_counterName);
+           }
+         m_cs.leave();
+        }
+      delete m_hm;
      }
 
-   T                 ref() const {return m_ref;}
+   T                 ref() const
+     {
+      return m_ref;
+     }
   };
 //+------------------------------------------------------------------+

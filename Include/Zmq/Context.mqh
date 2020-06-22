@@ -45,7 +45,7 @@ int zmq_ctx_shutdown(intptr_t context);
 int zmq_ctx_set(intptr_t context,int option,int optval);
 int zmq_ctx_get(intptr_t context,int option);
 #import
-class ContextHanldeManager: public HandleManager<intptr_t>
+class ContextHandleManager: public HandleManager<intptr_t>
   {
    intptr_t          create() override
      {

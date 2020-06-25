@@ -78,7 +78,7 @@ class ContextHandleManager: public HandleManager<intptr_t>
 //| and in a manner not easily recognized by humans, for example:    |
 //| "__3kewducdxhkd__"                                               |
 //+------------------------------------------------------------------+
-class Context: public GlobalHandle<intptr_t,ContextHanldeManager>
+class Context: public GlobalHandle<intptr_t,ContextHandleManager>
   {
 protected:
    int               get(int option) {return zmq_ctx_get(m_ref,option);}
@@ -89,7 +89,7 @@ public:
    static intptr_t   create() {return zmq_ctx_new();}
    static void       destroy(intptr_t handle) {if(0!=zmq_ctx_term(handle)) {Debug("failed to terminate context");}}
 
-                     Context(string shared=NULL):GlobalHandle<intptr_t,ContextHanldeManager>(shared) {}
+                     Context(string shared=NULL):GlobalHandle<intptr_t,ContextHandleManager>(shared) {}
 
    bool              shutdown() {return 0==zmq_ctx_shutdown(m_ref);}
 

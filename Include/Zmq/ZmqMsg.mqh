@@ -20,7 +20,7 @@
 //+------------------------------------------------------------------+
 #property strict
 #include <Mql/Lang/Mql.mqh>
-#include <Mql/Lang/Native.mqh>
+#include "ZmqCompatibility.mqh"
 //+------------------------------------------------------------------+
 //| 0MQ Message struct                                               |
 //+------------------------------------------------------------------+
@@ -54,6 +54,14 @@ int zmq_msg_set(zmq_msg_t &msg,int property,int optval);
 // const char *
 intptr_t zmq_msg_gets(zmq_msg_t &msg,const char &property[]);
 #import
+
+intptr_t zmq_msg_gets_compat(zmq_msg_t &msg,const uchar &property[])
+{
+  char propertyChar[];
+  UcharToChar(property, propertyChar);
+  return zmq_msg_gets(msg, propertyChar);
+}
+
 //+------------------------------------------------------------------+
 //| Wraps a zmq_msg_t                                                |
 //+------------------------------------------------------------------+
@@ -145,7 +153,7 @@ string ZmqMsg::meta(const string property)
   {
    uchar buf[];
    StringToUtf8(property,buf);
-   intptr_t ref=zmq_msg_gets(this,buf);
+   intptr_t ref=zmq_msg_gets_compat(this,buf);
    ArrayFree(buf);
    return StringFromUtf8Pointer(ref);
   }

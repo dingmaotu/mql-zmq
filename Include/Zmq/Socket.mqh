@@ -21,7 +21,7 @@
 #property strict
 
 #include <Mql/Lang/Mql.mqh>
-#include <Mql/Lang/Native.mqh>
+#include "ZmqCompatibility.mqh"
 #include "Context.mqh"
 #include "SocketOptions.mqh"
 #include "ZmqMsg.mqh"
@@ -118,6 +118,42 @@ int zmq_poll(PollItem &items[],int nitems,long timeout);
 int zmq_proxy(intptr_t frontend_ref,intptr_t backend_ref,intptr_t capture_ref);
 int zmq_proxy_steerable(intptr_t frontend_ref,intptr_t backend_ref,intptr_t capture_ref,intptr_t control_ref);
 #import
+
+int zmq_bind_compat(intptr_t s,const uchar &addr[])
+{
+  char addrChar[];
+  UcharToChar(addr, addrChar);
+  return zmq_bind(s, addrChar);
+}
+
+int zmq_unbind_compat(intptr_t s,const uchar &addr[])
+{
+  char addrChar[];
+  UcharToChar(addr, addrChar);
+  return zmq_unbind(s, addrChar);
+}
+
+int zmq_connect_compat(intptr_t s,const uchar &addr[])
+{
+  char addrChar[];
+  UcharToChar(addr, addrChar);
+  return zmq_connect(s, addrChar);
+}
+
+int zmq_disconnect_compat(intptr_t s,const uchar &addr[])
+{
+  char addrChar[];
+  UcharToChar(addr, addrChar);
+  return zmq_disconnect(s, addrChar);
+}
+
+int zmq_socket_monitor_compat(intptr_t s,const uchar &addr[],int events)
+{
+  char addrChar[];
+  UcharToChar(addr, addrChar);
+  return zmq_socket_monitor(s, addrChar, events);
+}
+
 //+------------------------------------------------------------------+
 //| Wraps a 0MQ socket                                               |
 //+------------------------------------------------------------------+
@@ -184,9 +220,9 @@ public:
 //+------------------------------------------------------------------+
 bool Socket::bind(string addr)
   {
-   char arr[];
+   uchar arr[];
    StringToUtf8(addr,arr);
-   bool res=(0==zmq_bind(m_ref,arr));
+   bool res=(0==zmq_bind_compat(m_ref,arr));
    ArrayFree(arr);
    return res;
   }
@@ -195,9 +231,9 @@ bool Socket::bind(string addr)
 //+------------------------------------------------------------------+
 bool Socket::unbind(string addr)
   {
-   char arr[];
+   uchar arr[];
    StringToUtf8(addr,arr);
-   bool res=(0==zmq_unbind(m_ref,arr));
+   bool res=(0==zmq_unbind_compat(m_ref,arr));
    ArrayFree(arr);
    return res;
   }
@@ -206,9 +242,9 @@ bool Socket::unbind(string addr)
 //+------------------------------------------------------------------+
 bool Socket::connect(string addr)
   {
-   char arr[];
+   uchar arr[];
    StringToUtf8(addr,arr);
-   bool res=(0==zmq_connect(m_ref,arr));
+   bool res=(0==zmq_connect_compat(m_ref,arr));
    ArrayFree(arr);
    return res;
   }
@@ -217,9 +253,9 @@ bool Socket::connect(string addr)
 //+------------------------------------------------------------------+
 bool Socket::disconnect(string addr)
   {
-   char arr[];
+   uchar arr[];
    StringToUtf8(addr,arr);
-   bool res=(0==zmq_disconnect(m_ref,arr));
+   bool res=(0==zmq_disconnect_compat(m_ref,arr));
    ArrayFree(arr);
    return res;
   }
@@ -230,7 +266,7 @@ bool Socket::monitor(string addr,int events)
   {
    uchar str[];
    StringToUtf8(addr,str);
-   bool res=(0==zmq_socket_monitor(m_ref,str,events));
+   bool res=(0==zmq_socket_monitor_compat(m_ref,str,events));
    ArrayFree(str);
    return res;
   }

@@ -20,7 +20,7 @@
 //+------------------------------------------------------------------+
 #property strict
 
-#include <Mql/Lang/Native.mqh>
+#include "ZmqCompatibility.mqh"
 
 #import "libzmq.dll"
 // Encode data with Z85 encoding. Returns 0(NULL) if failed
@@ -35,6 +35,43 @@ int zmq_curve_keypair(char &z85_public_key[],char &z85_secret_key[]);
 // Derive the z85-encoded public key from the z85-encoded secret key
 int zmq_curve_public(char &z85_public_key[],const char &z85_secret_key[]);
 #import
+
+// Encode data with Z85 encoding. Returns 0(NULL) if failed
+intptr_t zmq_z85_encode_compat(uchar &str[],const uchar &data[],size_t size)
+{
+  char strChar[];
+  UcharToChar(str, strChar);
+  return zmq_z85_encode(strChar, data, size);
+}
+
+// Decode data with Z85 encoding. Returns 0(NULL) if failed
+intptr_t zmq_z85_decode_compat(uchar &dest[],const uchar &str[])
+{
+  char strChar[];
+  UcharToChar(str, strChar);
+  return zmq_z85_decode(dest, strChar);
+}
+
+// Generate z85-encoded public and private keypair with tweetnacl/libsodium
+int zmq_curve_keypair_compat(uchar &z85_public_key[],uchar &z85_secret_key[])
+{
+  char pkChar[];
+  char skChar[];
+  UcharToChar(z85_public_key, pkChar);
+  UcharToChar(z85_secret_key, skChar);
+  return zmq_curve_keypair(pkChar, skChar);
+}
+
+// Derive the z85-encoded public key from the z85-encoded secret key
+int zmq_curve_public_compat(uchar &z85_public_key[],const uchar &z85_secret_key[])
+{
+  char pkChar[];
+  char skChar[];
+  UcharToChar(z85_public_key, pkChar);
+  UcharToChar(z85_secret_key, skChar);
+  return zmq_curve_public(pkChar, skChar);
+}
+
 //+------------------------------------------------------------------+
 //| Z85 encoding/decoding                                            |
 //+------------------------------------------------------------------+
@@ -61,10 +98,10 @@ bool Z85::encode(string &secret,const uchar &data[])
    int size=ArraySize(data);
    if(size%4 != 0) return false;
 
-   char str[];
+   uchar str[];
    ArrayResize(str,(int)(1.25*size+1));
 
-   intptr_t res=zmq_z85_encode(str,data,size);
+   intptr_t res=zmq_z85_encode_compat(str,data,size);
    if(res == 0) return false;
    secret = StringFromUtf8(str);
    return true;
@@ -77,17 +114,17 @@ bool Z85::decode(const string secret,uchar &data[])
    int len=StringLen(secret);
    if(len%5 != 0) return false;
 
-   char str[];
+   uchar str[];
    StringToUtf8(secret,str);
    ArrayResize(data,(int)(0.8*len));
-   return 0 != zmq_z85_decode(data,str);
+   return 0 != zmq_z85_decode_compat(data,str);
   }
 //+------------------------------------------------------------------+
 //| data length should be multiples of 4 and only ascii is supported |
 //+------------------------------------------------------------------+
 string Z85::encode(string data)
   {
-   char str[];
+   uchar str[];
    StringToUtf8(data,str,false);
    string res;
    if(encode(res,str))
@@ -111,7 +148,7 @@ bool Z85::generateKeyPair(uchar &publicKey[],uchar &secretKey[])
   {
    ArrayResize(publicKey,41);
    ArrayResize(secretKey,41);
-   return 0==zmq_curve_keypair(publicKey, secretKey);
+   return 0==zmq_curve_keypair_compat(publicKey, secretKey);
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -119,7 +156,7 @@ bool Z85::generateKeyPair(uchar &publicKey[],uchar &secretKey[])
 bool Z85::derivePublic(uchar &publicKey[],const uchar &secretKey[])
   {
    ArrayResize(publicKey,41);
-   return 0==zmq_curve_public(publicKey, secretKey);
+   return 0==zmq_curve_public_compat(publicKey, secretKey);
   }
 //+------------------------------------------------------------------+
 //|                                                                  |

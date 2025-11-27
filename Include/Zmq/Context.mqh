@@ -18,7 +18,7 @@
 //| See the License for the specific language governing permissions  |
 //| and limitations under the License.                               |
 //+------------------------------------------------------------------+
-#property strict
+// #property strict - Disabled for MQL5 compatibility
 #include <Mql/Lang/Mql.mqh>
 #include <Mql/Lang/Native.mqh>
 #include <Mql/Lang/GlobalVariable.mqh>

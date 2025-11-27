@@ -18,7 +18,7 @@
 //| See the License for the specific language governing permissions  |
 //| and limitations under the License.                               |
 //+------------------------------------------------------------------+
-#property strict
+// #property strict - Disabled for MQL5 compatibility
 
 #include <Mql/Lang/Mql.mqh>
 #include <Mql/Lang/Native.mqh>
@@ -81,7 +81,7 @@ struct PollItem
    short             revents;
 #ifdef __X64__
    //--- note here that if the program runs on 64bit runtime, we need to pad the
-   //--- struct to align to 8 bytes 
+   //--- struct to align to 8 bytes
    //--- thanks https://github.com/feng-ye for the solution to https://github.com/dingmaotu/mql-zmq/issues/14
    int               __unused;
 #endif
@@ -95,14 +95,14 @@ struct PollItem
 //+------------------------------------------------------------------+
 intptr_t zmq_socket(intptr_t context,int type);
 int zmq_close(intptr_t s);
-int zmq_bind(intptr_t s,const char &addr[]);
-int zmq_connect(intptr_t s,const char &addr[]);
-int zmq_unbind(intptr_t s,const char &addr[]);
-int zmq_disconnect(intptr_t s,const char &addr[]);
+int zmq_bind(intptr_t s,const uchar &addr[]);
+int zmq_connect(intptr_t s,const uchar &addr[]);
+int zmq_unbind(intptr_t s,const uchar &addr[]);
+int zmq_disconnect(intptr_t s,const uchar &addr[]);
 int zmq_send(intptr_t s,const uchar &buf[],size_t len,int flags);
 int zmq_send_const(intptr_t s,const uchar &buf[],size_t len,int flags);
 int zmq_recv(intptr_t s,uchar &buf[],size_t len,int flags);
-int zmq_socket_monitor(intptr_t s,const char &addr[],int events);
+int zmq_socket_monitor(intptr_t s,const uchar &addr[],int events);
 //+------------------------------------------------------------------+
 //| Message                                                          |
 //+------------------------------------------------------------------+
@@ -184,7 +184,7 @@ public:
 //+------------------------------------------------------------------+
 bool Socket::bind(string addr)
   {
-   char arr[];
+   uchar arr[];
    StringToUtf8(addr,arr);
    bool res=(0==zmq_bind(m_ref,arr));
    ArrayFree(arr);
@@ -195,7 +195,7 @@ bool Socket::bind(string addr)
 //+------------------------------------------------------------------+
 bool Socket::unbind(string addr)
   {
-   char arr[];
+   uchar arr[];
    StringToUtf8(addr,arr);
    bool res=(0==zmq_unbind(m_ref,arr));
    ArrayFree(arr);
@@ -206,7 +206,7 @@ bool Socket::unbind(string addr)
 //+------------------------------------------------------------------+
 bool Socket::connect(string addr)
   {
-   char arr[];
+   uchar arr[];
    StringToUtf8(addr,arr);
    bool res=(0==zmq_connect(m_ref,arr));
    ArrayFree(arr);
@@ -217,7 +217,7 @@ bool Socket::connect(string addr)
 //+------------------------------------------------------------------+
 bool Socket::disconnect(string addr)
   {
-   char arr[];
+   uchar arr[];
    StringToUtf8(addr,arr);
    bool res=(0==zmq_disconnect(m_ref,arr));
    ArrayFree(arr);

@@ -18,7 +18,7 @@
 //| See the License for the specific language governing permissions  |
 //| and limitations under the License.                               |
 //+------------------------------------------------------------------+
-#property strict
+// #property strict - Disabled for MQL5 compatibility
 #include <Mql/Lang/Mql.mqh>
 #include <Mql/Lang/Native.mqh>
 //+------------------------------------------------------------------+
@@ -37,7 +37,7 @@ struct zmq_msg_t
 #import "libzmq.dll"
 int zmq_msg_init(zmq_msg_t &msg);
 int zmq_msg_init_size(zmq_msg_t &msg,size_t size);
-// As mt4 can not provide a zmq_free_fn, and can not let 
+// As mt4 can not provide a zmq_free_fn, and can not let
 // zmq library own the array data, copying is always needed.
 // Therefore this function will not be used by this binding.
 // int zmq_msg_init_data(zmq_msg_t &msg,uchar &data[],
@@ -51,8 +51,8 @@ int zmq_msg_size(zmq_msg_t &msg);
 int zmq_msg_more(zmq_msg_t &msg);
 int zmq_msg_get(zmq_msg_t &msg,int property);
 int zmq_msg_set(zmq_msg_t &msg,int property,int optval);
-// const char *
-intptr_t zmq_msg_gets(zmq_msg_t &msg,const char &property[]);
+// const uchar *
+intptr_t zmq_msg_gets(zmq_msg_t &msg,const uchar &property[]);
 #import
 //+------------------------------------------------------------------+
 //| Wraps a zmq_msg_t                                                |

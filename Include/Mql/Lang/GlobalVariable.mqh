@@ -248,7 +248,6 @@ public:
 
    void              enter()
      {
-      GlobalVariable::remove(m_name);
       while(!GlobalVariable::makeTemp(m_name) && !IsStopped())
          Sleep(100);
      }

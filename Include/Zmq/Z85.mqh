@@ -24,16 +24,16 @@
 
 #import "libzmq.dll"
 // Encode data with Z85 encoding. Returns 0(NULL) if failed
-intptr_t zmq_z85_encode(char &str[],const uchar &data[],size_t size);
+intptr_t zmq_z85_encode(uchar &str[],const uchar &data[],size_t size);
 
 // Decode data with Z85 encoding. Returns 0(NULL) if failed
-intptr_t zmq_z85_decode(uchar &dest[],const char &str[]);
+intptr_t zmq_z85_decode(uchar &dest[],const uchar &str[]);
 
 // Generate z85-encoded public and private keypair with tweetnacl/libsodium
-int zmq_curve_keypair(char &z85_public_key[],char &z85_secret_key[]);
+int zmq_curve_keypair(uchar &z85_public_key[],uchar &z85_secret_key[]);
 
 // Derive the z85-encoded public key from the z85-encoded secret key
-int zmq_curve_public(char &z85_public_key[],const char &z85_secret_key[]);
+int zmq_curve_public(uchar &z85_public_key[],const uchar &z85_secret_key[]);
 #import
 //+------------------------------------------------------------------+
 //| Z85 encoding/decoding                                            |
@@ -61,7 +61,7 @@ bool Z85::encode(string &secret,const uchar &data[])
    int size=ArraySize(data);
    if(size%4 != 0) return false;
 
-   char str[];
+   uchar str[];
    ArrayResize(str,(int)(1.25*size+1));
 
    intptr_t res=zmq_z85_encode(str,data,size);
@@ -77,7 +77,7 @@ bool Z85::decode(const string secret,uchar &data[])
    int len=StringLen(secret);
    if(len%5 != 0) return false;
 
-   char str[];
+   uchar str[];
    StringToUtf8(secret,str);
    ArrayResize(data,(int)(0.8*len));
    return 0 != zmq_z85_decode(data,str);
@@ -87,7 +87,7 @@ bool Z85::decode(const string secret,uchar &data[])
 //+------------------------------------------------------------------+
 string Z85::encode(string data)
   {
-   char str[];
+   uchar str[];
    StringToUtf8(data,str,false);
    string res;
    if(encode(res,str))

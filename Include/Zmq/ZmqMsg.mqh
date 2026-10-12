@@ -51,8 +51,8 @@ int zmq_msg_size(zmq_msg_t &msg);
 int zmq_msg_more(zmq_msg_t &msg);
 int zmq_msg_get(zmq_msg_t &msg,int property);
 int zmq_msg_set(zmq_msg_t &msg,int property,int optval);
-// const char *
-intptr_t zmq_msg_gets(zmq_msg_t &msg,const char &property[]);
+// const uchar * (Updated from char to uchar for MT5 strict type checking)
+intptr_t zmq_msg_gets(zmq_msg_t &msg,const uchar &property[]);
 #import
 //+------------------------------------------------------------------+
 //| Wraps a zmq_msg_t                                                |

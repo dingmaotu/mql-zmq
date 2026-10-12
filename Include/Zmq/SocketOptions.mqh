@@ -4,27 +4,12 @@
 //|     https://github.com/dingmaotu/mql-zmq                         |
 //|                                                                  |
 //| Copyright 2016-2017 Li Ding <dingmaotu@hotmail.com>              |
-//|                                                                  |
-//| Licensed under the Apache License, Version 2.0 (the "License");  |
-//| you may not use this file except in compliance with the License. |
-//| You may obtain a copy of the License at                          |
-//|                                                                  |
-//|     http://www.apache.org/licenses/LICENSE-2.0                   |
-//|                                                                  |
-//| Unless required by applicable law or agreed to in writing,       |
-//| software distributed under the License is distributed on an      |
-//| "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,     |
-//| either express or implied.                                       |
-//| See the License for the specific language governing permissions  |
-//| and limitations under the License.                               |
 //+------------------------------------------------------------------+
 #property strict
 
 #include <Mql/Lang/Native.mqh>
 
 #import "libzmq.dll"
-// We can overload the same function for different data types
-// as in the C level the optval paramter is just a pointer
 #define SOCKOPT_OVERLOAD_ARRAY(TYPE) \
 int zmq_setsockopt(intptr_t s,int option,const TYPE &optval[],\
                    size_t optvallen);\
@@ -44,7 +29,7 @@ SOCKOPT_OVERLOAD(int)
 SOCKOPT_OVERLOAD(uint)
 #import
 
-// Socket options
+// Socket options definitions...
 #define ZMQ_AFFINITY 4
 #define ZMQ_IDENTITY 5
 #define ZMQ_SUBSCRIBE 6
@@ -118,9 +103,7 @@ SOCKOPT_OVERLOAD(uint)
 #define ZMQ_VMCI_BUFFER_MAX_SIZE 87
 #define ZMQ_VMCI_CONNECT_TIMEOUT 88
 #define ZMQ_USE_FD 89
-//+------------------------------------------------------------------+
-//| A dedicated class to get/set socket options                      |
-//+------------------------------------------------------------------+
+
 class SocketOptions
   {
 protected:
@@ -144,8 +127,6 @@ protected:
    bool              getStringOption(int option,string &value,size_t length=1024);
                      SocketOptions(intptr_t ref):m_ref(ref){}
 public:
-   //--- option templates
-   //--- various integer options
 #define SOCKOPT_GET(TYPE, NAME, MACRO) \
    bool              get##NAME(TYPE &value) {return getOption(MACRO,value);}
 #define SOCKOPT_SET(TYPE, NAME, MACRO) \
@@ -154,7 +135,6 @@ public:
    SOCKOPT_GET(TYPE,NAME,MACRO) \
    SOCKOPT_SET(TYPE,NAME,MACRO)
 
-   //--- boolean options
 #define SOCKOPT_GET_BOOL(NAME, MACRO) \
    bool              is##NAME(bool &value) {int v; bool res=getOption(MACRO,v); value=(v==1);return res;}
 #define SOCKOPT_SET_BOOL(NAME, MACRO) \
@@ -163,7 +143,6 @@ public:
    SOCKOPT_GET_BOOL(NAME,MACRO) \
    SOCKOPT_SET_BOOL(NAME,MACRO)
 
-   //--- null-terminated string options
 #define SOCKOPT_GET_NTSTR(NAME,MACRO) \
    bool              get##NAME(string &value) {return getStringOption(MACRO,value);}
 #define SOCKOPT_SET_NTSTR(NAME,MACRO) \
@@ -172,7 +151,6 @@ public:
    SOCKOPT_GET_NTSTR(NAME,MACRO) \
    SOCKOPT_SET_NTSTR(NAME,MACRO)
 
-   //--- bytes array or string converted options
 #define SOCKOPT_SET_BYTES(OptionName,Macro) \
    bool              set##OptionName(const uchar &value[]) {return setOption(Macro,value,(size_t)ArraySize(value));} \
    bool              set##OptionName(string value) {return setStringOption(Macro,value,false);}
@@ -183,10 +161,6 @@ public:
    SOCKOPT_SET_BYTES(OptionName,Macro) \
    SOCKOPT_GET_BYTES(OptionName,Macro,InitSize)
 
-   //--- for curve key
-   //--- NOTE that the length of the key array must be 32.
-   //--- since some versions of mt4 and newer versions of mt5 will report error
-   //--- when the length of the array is specified, so the length specification is removed
 #define SOCKOPT_CURVE_KEY(KeyType,Macro) \
    bool              getCurve##KeyType##Key(uchar &key[]) {size_t len=32; return getOption(Macro,key,len);} \
    bool              getCurve##KeyType##Key(string &key) {return getStringOption(Macro,key,41);} \
@@ -194,145 +168,83 @@ public:
    bool              setCurve##KeyType##Key(string key) {return setStringOption(Macro,key);}
 
    SOCKOPT_GET(int,Type,ZMQ_TYPE)
-   SOCKOPT(ulong,Affinity,ZMQ_AFFINITY) //64bit bitmask
-   SOCKOPT(int,BackLog,ZMQ_BACKLOG) // number of connections
-   SOCKOPT(int,Timeout,ZMQ_CONNECT_TIMEOUT) // milliseconds
+   SOCKOPT(ulong,Affinity,ZMQ_AFFINITY)
+   SOCKOPT(int,BackLog,ZMQ_BACKLOG)
+   SOCKOPT(int,Timeout,ZMQ_CONNECT_TIMEOUT)
    SOCKOPT_GET_BOOL(ThreadSafe,ZMQ_THREAD_SAFE)
-
-   SOCKOPT_SET_BOOL(Conflate,ZMQ_CONFLATE) // only for ZMQ_PULL, ZMQ_PUSH, ZMQ_SUB, ZMQ_PUB, ZMQ_DEALER types
-
-   SOCKOPT_GET(int,Events,ZMQ_EVENTS); // bitmask of ZMQ_POLLIN, ZMQ_POLLOUT
-
+   SOCKOPT_SET_BOOL(Conflate,ZMQ_CONFLATE)
+   SOCKOPT_GET(int,Events,ZMQ_EVENTS)
    SOCKOPT_GET(uintptr_t,FileDescriptor,ZMQ_FD)
-
-   SOCKOPT_GET(int,Mechanism,ZMQ_MECHANISM) // current security mechanism
-
-   //--- plain
+   SOCKOPT_GET(int,Mechanism,ZMQ_MECHANISM)
    SOCKOPT_NTSTR(PlainUsername,ZMQ_PLAIN_USERNAME)
    SOCKOPT_NTSTR(PlainPassword,ZMQ_PLAIN_PASSWORD)
    SOCKOPT_BOOL(PlainServer,ZMQ_PLAIN_SERVER)
-
-   //--- gssapi: this is not supported in this binding. Following methods will FAIL if you invoke them
    SOCKOPT_BOOL(GssApiPlainText,ZMQ_GSSAPI_PLAINTEXT)
    SOCKOPT_BOOL(GssApiServer,ZMQ_GSSAPI_SERVER)
    SOCKOPT_NTSTR(GssApiPrincipal,ZMQ_GSSAPI_PRINCIPAL)
    SOCKOPT_NTSTR(GssApiServicePrincipal,ZMQ_GSSAPI_SERVICE_PRINCIPAL)
-
-   //--- curve
    SOCKOPT_CURVE_KEY(Public,ZMQ_CURVE_PUBLICKEY)
    SOCKOPT_CURVE_KEY(Secret,ZMQ_CURVE_SECRETKEY)
    SOCKOPT_CURVE_KEY(Server,ZMQ_CURVE_SERVERKEY)
-
    SOCKOPT_SET_BOOL(CurveServer,ZMQ_CURVE_SERVER)
-
    SOCKOPT_GET_NTSTR(LastEndpoint,ZMQ_LAST_ENDPOINT)
-
-   SOCKOPT(int,HandshakeInterval,ZMQ_HANDSHAKE_IVL) // milliseconds
-   SOCKOPT_SET(int,HeartbeatInterval,ZMQ_HEARTBEAT_IVL) // milliseconds
-   SOCKOPT_SET(int,HeartbeatTimeout,ZMQ_HEARTBEAT_TIMEOUT) // milliseconds
-   SOCKOPT_SET(int,HeartbeatTTL,ZMQ_HEARTBEAT_TTL) // milliseconds
-
+   SOCKOPT(int,HandshakeInterval,ZMQ_HANDSHAKE_IVL)
+   SOCKOPT_SET(int,HeartbeatInterval,ZMQ_HEARTBEAT_IVL)
+   SOCKOPT_SET(int,HeartbeatTimeout,ZMQ_HEARTBEAT_TIMEOUT)
+   SOCKOPT_SET(int,HeartbeatTTL,ZMQ_HEARTBEAT_TTL)
    SOCKOPT_BOOL(Immediate,ZMQ_IMMEDIATE)
-   SOCKOPT_BOOL(Ipv6,ZMQ_IPV6) //--- ZMQ_IPV4ONLY is deprecated, use this instead
-   SOCKOPT(int,Linger,ZMQ_LINGER) // milliseconds
+   SOCKOPT_BOOL(Ipv6,ZMQ_IPV6)
+   SOCKOPT(int,Linger,ZMQ_LINGER)
    SOCKOPT(long,MaxMessageSize,ZMQ_MAXMSGSIZE)
-
-   //--- multicast
-   SOCKOPT(int,MulticastHops,ZMQ_MULTICAST_HOPS) // hops
-   SOCKOPT(int,MulticastMaxTPDU,ZMQ_MULTICAST_MAXTPDU) // bytes
-   SOCKOPT(int,MulticastRate,ZMQ_RATE) // kilobits per second
-   SOCKOPT(int,RecoveryInterval,ZMQ_RECOVERY_IVL) // multicast recovery interval
-
-   //--- there is a problem here: FileDescriptor should be SOCKET type on Windows,
-   //--- while in the zmq doc it is a int. Possible error in the doc
+   SOCKOPT(int,MulticastHops,ZMQ_MULTICAST_HOPS)
+   SOCKOPT(int,MulticastMaxTPDU,ZMQ_MULTICAST_MAXTPDU)
+   SOCKOPT(int,MulticastRate,ZMQ_RATE)
+   SOCKOPT(int,RecoveryInterval,ZMQ_RECOVERY_IVL)
    SOCKOPT(uintptr_t,UseFileDescriptor,ZMQ_USE_FD)
-
-   SOCKOPT_SET_BOOL(ProbeRouter,ZMQ_PROBE_ROUTER) // only for ZMQ_ROUTER, ZMQ_DEALER, ZMQ_REQ
-
-   SOCKOPT(int,ReceiveBuffer,ZMQ_RCVBUF) // bytes
-   SOCKOPT(int,ReceiveHighWaterMark,ZMQ_RCVHWM) // messages
-   SOCKOPT(int,ReceiveTimeout,ZMQ_RCVTIMEO) // milliseconds
-   SOCKOPT(int,SendBuffer,ZMQ_SNDBUF) // bytes
-   SOCKOPT(int,SendHighWaterMark,ZMQ_SNDHWM) // messages
+   SOCKOPT_SET_BOOL(ProbeRouter,ZMQ_PROBE_ROUTER)
+   SOCKOPT(int,ReceiveBuffer,ZMQ_RCVBUF)
+   SOCKOPT(int,ReceiveHighWaterMark,ZMQ_RCVHWM)
+   SOCKOPT(int,ReceiveTimeout,ZMQ_RCVTIMEO)
+   SOCKOPT(int,SendBuffer,ZMQ_SNDBUF)
+   SOCKOPT(int,SendHighWaterMark,ZMQ_SNDHWM)
    SOCKOPT(int,SendTimeout,ZMQ_SNDTIMEO)
-
    SOCKOPT_GET_BOOL(ReceiveMore,ZMQ_RCVMORE)
-
-   SOCKOPT(int,ReconnectInterval,ZMQ_RECONNECT_IVL) // milliseconds
-   SOCKOPT(int,ReconnectIntervalMax,ZMQ_RECONNECT_IVL_MAX) // milliseconds
-
-   //--- only for ZMQ_REQ
+   SOCKOPT(int,ReconnectInterval,ZMQ_RECONNECT_IVL)
+   SOCKOPT(int,ReconnectIntervalMax,ZMQ_RECONNECT_IVL_MAX)
    SOCKOPT_SET_BOOL(RequestCorrelated,ZMQ_REQ_CORRELATE)
    SOCKOPT_SET_BOOL(RequestRelaxed,ZMQ_REQ_RELAXED)
-
-   //--- only for ZMQ_SUB
    SOCKOPT_SET_BYTES(Subscribe,ZMQ_SUBSCRIBE)
    SOCKOPT_SET_BYTES(Unsubscribe,ZMQ_UNSUBSCRIBE)
-
-   //--- convenience methods
    bool subscribe(string channel) {return setSubscribe(channel);}
    bool unsubscribe(string channel) {return setUnsubscribe(channel);}
-
-   //--- only for ZMQ_XSUB
    SOCKOPT_BOOL(XpubVerbose,ZMQ_XPUB_VERBOSE)
    SOCKOPT_BOOL(XpubVerboser,ZMQ_XPUB_VERBOSER)
    SOCKOPT_BOOL(XpubManual,ZMQ_XPUB_MANUAL)
-   SOCKOPT_BOOL(XpubNoDrop,ZMQ_XPUB_NODROP) // also for ZMQ_PUB
+   SOCKOPT_BOOL(XpubNoDrop,ZMQ_XPUB_NODROP)
    SOCKOPT_SET_BYTES(XpubWelcomeMessage,ZMQ_XPUB_WELCOME_MSG)
-
-   SOCKOPT_BOOL(InvertMatching,ZMQ_INVERT_MATCHING) //--- only for ZMQ_PUB, ZMQ_XPUB, ZMQ_SUB
-
-   //--- only for ZMQ_ROUTER
+   SOCKOPT_BOOL(InvertMatching,ZMQ_INVERT_MATCHING)
    SOCKOPT_SET_BOOL(RouterHandover,ZMQ_ROUTER_HANDOVER)
    SOCKOPT_SET_BOOL(RouterMandatory,ZMQ_ROUTER_MANDATORY)
    SOCKOPT_SET_BOOL(RouterRaw,ZMQ_ROUTER_RAW)
-
-   //--- only for ZMQ_STREAM
    SOCKOPT_SET_BOOL(StreamNotify,ZMQ_STREAM_NOTIFY)
-
-   //--- only for ZMQ_ROUTER, ZMQ_STREAM
    SOCKOPT_SET_BYTES(ConnectRid,ZMQ_CONNECT_RID)
-
-   //--- only for ZMQ_REP, ZMQ_REQ, ZMQ_ROUTER, ZMQ_DEALER
    SOCKOPT_BYTES(Identity,ZMQ_IDENTITY,255)
-
-   //--- tcp
    SOCKOPT(int,TcpKeepAlive,ZMQ_TCP_KEEPALIVE)
    SOCKOPT(int,TcpKeepAliveCount,ZMQ_TCP_KEEPALIVE_CNT)
    SOCKOPT(int,TcpKeepAliveIdle,ZMQ_TCP_KEEPALIVE_IDLE)
    SOCKOPT(int,TcpKeepAliveInterval,ZMQ_TCP_KEEPALIVE_INTVL)
    SOCKOPT(int,TcpMaxRetransmitTimeout,ZMQ_TCP_MAXRT)
-
-   SOCKOPT(int,TypeOfService,ZMQ_TOS) // IP_TOS
-
-   //--- ZMQ_TCP_ACCEPT_FILTER
-   //--- ZMQ_IPC_FILTER_GID
-   //--- ZMQ_IPC_FILTER_PID
-   //--- ZMQ_IPC_FILTER_UID
-   //--- are deprecated in favor of ZAP API and ip address whitelisting/blacklisting
+   SOCKOPT(int,TypeOfService,ZMQ_TOS)
    SOCKOPT_NTSTR(ZapDomain,ZMQ_ZAP_DOMAIN)
-
-   //--- only for vmci transport
-   SOCKOPT(ulong,VmciBufferSize,ZMQ_VMCI_BUFFER_SIZE) // bytes
-   SOCKOPT(ulong,VmciBufferMinSize,ZMQ_VMCI_BUFFER_MIN_SIZE) // bytes
-   SOCKOPT(ulong,VmciBufferMaxSize,ZMQ_VMCI_BUFFER_MAX_SIZE) // bytes
-   SOCKOPT(int,VmciConnectTimeout,ZMQ_VMCI_CONNECT_TIMEOUT) // milliseconds
+   SOCKOPT(ulong,VmciBufferSize,ZMQ_VMCI_BUFFER_SIZE)
+   SOCKOPT(ulong,VmciBufferMinSize,ZMQ_VMCI_BUFFER_MIN_SIZE)
+   SOCKOPT(ulong,VmciBufferMaxSize,ZMQ_VMCI_BUFFER_MAX_SIZE)
+   SOCKOPT(int,VmciConnectTimeout,ZMQ_VMCI_CONNECT_TIMEOUT)
   };
-//+------------------------------------------------------------------+
-//| The option value is a string with predefined byte length         |
-//|                                                                  |
-//| If it is a NULL-terminated string without predefined length,     |
-//| The situation is tricky: we do not know the length of the option |
-//| value beforehand, but the function does not return the correct   |
-//| one, either. So the only option is to guess.                     |
-//|                                                                  |
-//| Here we adopt the solution of the Java binding. We just guess    |
-//| that the length of a NULL-terminated string option is less than  |
-//| 1024. So hopefully, it is the case.                              |
-//+------------------------------------------------------------------+
+
 bool SocketOptions::getStringOption(int option,string &value,size_t length)
   {
-   char buf[];
+   uchar buf[]; // Changed from char to uchar
    ArrayResize(buf,(int)length);
    bool res=getOption(option,buf,length);
    if(res)
@@ -342,17 +254,13 @@ bool SocketOptions::getStringOption(int option,string &value,size_t length)
    ArrayFree(buf);
    return res;
   }
-//+------------------------------------------------------------------+
-//| The ending means that the converted buffer contains the ending   |
-//| null.                                                            |
-//+------------------------------------------------------------------+
+
 bool SocketOptions::setStringOption(int option,const string value,bool ending)
   {
-   char buf[];
+   uchar buf[]; // Changed from char to uchar
    StringToUtf8(value,buf,ending);
    int len = ArraySize(buf);
    bool res=setOption(option,buf,len);
    ArrayFree(buf);
    return res;
   }
-//+------------------------------------------------------------------+

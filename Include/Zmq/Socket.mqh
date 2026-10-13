@@ -42,8 +42,8 @@
 
 //--- Message options
 #define ZMQ_MORE 1
-#define ZMQ_SRCFD 2  
-#define ZMQ_SHARED 3 // Deprecated
+#define ZMQ_SRCFD 2  // Deprecated
+#define ZMQ_SHARED 3 
 
 //--- Send/recv options
 #define ZMQ_DONTWAIT 1

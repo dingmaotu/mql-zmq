@@ -43,7 +43,7 @@
 //--- Message options
 #define ZMQ_MORE 1
 #define ZMQ_SRCFD 2  // Deprecated
-#define ZMQ_SHARED 3 
+#define ZMQ_SHARED 3
 
 //--- Send/recv options
 #define ZMQ_DONTWAIT 1
@@ -89,7 +89,6 @@ struct PollItem
    bool              hasInput() const {return(revents&ZMQ_POLLIN)!=0;}
    bool              hasOutput() const {return(revents&ZMQ_POLLOUT)!=0;}
   };
-
 #import "libzmq.dll"
 //+------------------------------------------------------------------+
 //| Sockets                                                          |
@@ -129,7 +128,7 @@ public:
    virtual          ~Socket() {if(0!=zmq_close(m_ref)){Debug(StringFormat("Failed to close socket 0x%0X",m_ref));}}
    // for better cooperation between objects
    intptr_t          ref() const {return m_ref;}
- 
+
    bool              valid() const {return m_ref!=0;}
 
    //--- see Zmq::error() if any of the following command failed
@@ -162,7 +161,6 @@ public:
    bool              sendMore(string msg,bool nowait=false) {ZmqMsg m(msg); return sendMore(m,nowait);}
    bool              sendMore(bool nowait=false) {ZmqMsg m; return sendMore(m,nowait);}
 
-
    //--- receive packets
    bool              recv(uchar &buf[],bool nowait=false) {return -1!=zmq_recv(m_ref,buf,ArraySize(buf),nowait?ZMQ_DONTWAIT:0);}
    bool              recv(ZmqMsg &msg,bool nowait=false) {return -1!=zmq_msg_recv(msg,m_ref,nowait?ZMQ_DONTWAIT:0);}
@@ -176,7 +174,7 @@ public:
 
    //--- poll
    static int        poll(PollItem &arr[],long timeout);
-   
+ 
    //--- fill a poll item for this socket
    void              fillPollItem(PollItem &item,short events);
   };
@@ -274,4 +272,4 @@ void Socket::fillPollItem(PollItem &item,short events)
    item.events=events;
    item.revents=0;
   }
-  //+------------------------------------------------------------------+
+//+------------------------------------------------------------------+

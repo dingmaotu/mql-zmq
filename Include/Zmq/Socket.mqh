@@ -126,6 +126,7 @@ class Socket: public SocketOptions
 public:
                      Socket(const Context &ctx,int type):SocketOptions(zmq_socket(ctx.ref(),type)){}
    virtual          ~Socket() {if(0!=zmq_close(m_ref)){Debug(StringFormat("Failed to close socket 0x%0X",m_ref));}}
+
    // for better cooperation between objects
    intptr_t          ref() const {return m_ref;}
 
@@ -174,7 +175,7 @@ public:
 
    //--- poll
    static int        poll(PollItem &arr[],long timeout);
- 
+
    //--- fill a poll item for this socket
    void              fillPollItem(PollItem &item,short events);
   };
